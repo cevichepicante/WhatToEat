@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.cevichepicante.ui"
+    namespace = "com.cevichepicante.foodpicker"
     compileSdk = 34
 
     defaultConfig {
