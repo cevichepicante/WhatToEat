@@ -1,8 +1,18 @@
 package com.cevichepicante.data.repository
 
+import android.content.Context
 import com.cevichepicante.model.Food
+import com.cevichepicante.model.FoodRecipe
+import com.cevichepicante.model.FoodSource
 
 interface FoodSourceRepository {
 
-    abstract suspend fun fetchFoodList(): List<Food>
+    suspend fun fetchFoodSourceList(context: Context): List<FoodSource>
+
+    suspend fun fetchFoodList(context: Context): List<Food>
+
+    suspend fun fetchRecipe(
+        context: Context,
+        foodId: String
+    ): FoodRecipe?
 }
