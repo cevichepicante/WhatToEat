@@ -57,6 +57,9 @@ fun PickingFoodScreen(
     var spinSlot by remember {
         mutableStateOf(true)
     }
+    var pickedFood by remember {
+        mutableStateOf(false)
+    }
 
     Column(
         modifier = modifier
@@ -69,14 +72,26 @@ fun PickingFoodScreen(
                 spin = spinSlot,
                 modifier = Modifier.fillMaxWidth()
             )
+            FoodTreatButtons(
+                onClickCook = { TODO() },
+                onClickOrder = { TODO() },
+                visible = pickedFood,
+                modifier = Modifier.fillMaxWidth()
+                    .padding(10.dp)
+            )
+            SlotButtons(
+                onClickStart = {
+                    spinSlot = true
+                    pickedFood = false },
+                onClickStop = {
+                    spinSlot = false
+                    pickedFood = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 50.dp)
+            )
         }
 
-        SlotButtons(
-            onClickStart = { spinSlot = true },
-            onClickStop = { spinSlot = false },
-            modifier = Modifier.fillMaxWidth()
-                .padding(top = 50.dp)
-        )
     }
 }
 
@@ -176,6 +191,36 @@ private fun SlotButtons(
             onClick = onClickStop,
             modifier = Modifier.weight(1f)
         )
+    }
+}
+
+@Composable
+private fun FoodTreatButtons(
+    onClickCook: () -> Unit,
+    onClickOrder: () -> Unit,
+    visible: Boolean,
+    modifier: Modifier = Modifier
+) {
+    if(visible) {
+        Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(30.dp)
+        ) {
+            SlotButton(
+                text = "Cook",
+                textColor = Color.Black,
+                containerColor = Color.Transparent,
+                onClick = onClickCook,
+                modifier = Modifier.weight(1f)
+            )
+            SlotButton(
+                text = "Order",
+                textColor = Color.Black,
+                containerColor = Color.Transparent,
+                onClick = onClickOrder,
+                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }
 

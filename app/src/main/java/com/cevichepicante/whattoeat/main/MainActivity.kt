@@ -13,25 +13,32 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.cevichepicante.foodpicker.PickingFoodScreen
 import com.cevichepicante.foodpicker.PickingFoodViewModel
+import com.cevichepicante.recipe.RecipeScreen
+import com.cevichepicante.recipe.RecipeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val viewModel by viewModels<PickingFoodViewModel>()
+    private val viewModel by viewModels<RecipeViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             Scaffold { innerPadding ->
-                PickingFoodScreen(
+                RecipeScreen(
+                    foodId = "7014691",
                     viewModel = viewModel,
-                    modifier = Modifier
-                        .padding(innerPadding)
-                        .fillMaxWidth()
+                    modifier = Modifier.padding(innerPadding)
                 )
+//                PickingFoodScreen(
+//                    viewModel = viewModel,
+//                    modifier = Modifier
+//                        .padding(innerPadding)
+//                        .fillMaxWidth()
+//                )
             }
         }
     }

@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.dagger.hilt)
     alias(libs.plugins.ksp)
 }
@@ -32,9 +33,14 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    buildFeatures {
+        compose = true
+    }
 }
 
 dependencies {
+    implementation(project(":core:data"))
+    implementation(project(":core:model"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
