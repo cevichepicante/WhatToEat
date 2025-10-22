@@ -33,16 +33,15 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role.Companion.Button
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.cevichepicante.model.Food
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PickingFoodScreen(
     onClickRecipe: (String) -> Unit,
@@ -57,20 +56,28 @@ fun PickingFoodScreen(
             Int.MAX_VALUE
         }
     )
-    var spinSlot by remember {
+    var spinSlot by rememberSaveable {
         mutableStateOf(true)
     }
-    var pickedFood by remember {
+    var pickedFood by rememberSaveable {
         mutableStateOf(false)
     }
     val selectedFood by remember(
-        key1 = spinSlot,
-        key2 = foodList,
-        key3 = pagerState
+        keys = arrayOf(foodList, pagerState, spinSlot, pickedFood)
     ) {
         derivedStateOf {
-            val actualIndex = pagerState.currentPage % foodList.size
-            foodList.getOrNull(actualIndex)
+            if(pickedFood) {
+                val actualIndex = pagerState.currentPage.let {
+                    if(it > 0) {
+                        it % foodList.size
+                    } else {
+                        0
+                    }
+                }
+                foodList.getOrNull(actualIndex)
+            } else {
+                null
+            }
         }
     }
 
@@ -112,7 +119,6 @@ fun PickingFoodScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun FoodSlot(
     list: List<Food>,
