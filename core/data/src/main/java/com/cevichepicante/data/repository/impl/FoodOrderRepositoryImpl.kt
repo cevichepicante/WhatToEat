@@ -13,7 +13,7 @@ class FoodOrderRepositoryImpl @Inject constructor(
     override suspend fun requestOrder(param: FoodOrderReq): CommonResult<FoodOrderRes> {
         // example
         val orderData = FoodOrderRes(
-            foodId = "test",
+            foodName = "test",
             address = "서울특별시 금천구",
             clientName = "정소윤",
             price = 28000,

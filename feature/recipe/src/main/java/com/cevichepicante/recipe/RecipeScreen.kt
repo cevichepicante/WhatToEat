@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 fun RecipeScreen(
     foodId: String,
     viewModel: RecipeViewModel,
+    onClickClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val recipe by viewModel.recipeData.collectAsState()

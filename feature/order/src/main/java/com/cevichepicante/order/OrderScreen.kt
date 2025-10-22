@@ -15,7 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun OrderScreen() {
+fun OrderScreen(
+    foodId: String,
+    viewModel: OrderViewModel,
+    onFinishOrder: () ->  Unit,
+    modifier: Modifier = Modifier
+) {
 
     Column {
         OrderTextField(

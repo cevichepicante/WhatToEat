@@ -15,30 +15,21 @@ import com.cevichepicante.foodpicker.PickingFoodScreen
 import com.cevichepicante.foodpicker.PickingFoodViewModel
 import com.cevichepicante.recipe.RecipeScreen
 import com.cevichepicante.recipe.RecipeViewModel
+import com.cevichepicante.whattoeat.main.navigation.WteNavHost
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val viewModel by viewModels<RecipeViewModel>()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             Scaffold { innerPadding ->
-                RecipeScreen(
-                    foodId = "7014691",
-                    viewModel = viewModel,
+                WteNavHost(
                     modifier = Modifier.padding(innerPadding)
                 )
-//                PickingFoodScreen(
-//                    viewModel = viewModel,
-//                    modifier = Modifier
-//                        .padding(innerPadding)
-//                        .fillMaxWidth()
-//                )
             }
         }
     }

@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,8 @@ import com.cevichepicante.model.Food
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PickingFoodScreen(
+    onClickRecipe: (String) -> Unit,
+    onClickOrder: (String) -> Unit,
     viewModel: PickingFoodViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -60,6 +63,16 @@ fun PickingFoodScreen(
     var pickedFood by remember {
         mutableStateOf(false)
     }
+    val selectedFood by remember(
+        key1 = spinSlot,
+        key2 = foodList,
+        key3 = pagerState
+    ) {
+        derivedStateOf {
+            val actualIndex = pagerState.currentPage % foodList.size
+            foodList.getOrNull(actualIndex)
+        }
+    }
 
     Column(
         modifier = modifier
@@ -73,8 +86,12 @@ fun PickingFoodScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             FoodTreatButtons(
-                onClickCook = { TODO() },
-                onClickOrder = { TODO() },
+                onClickCook = {
+                    onClickRecipe(selectedFood?.id.orEmpty())
+                },
+                onClickOrder = {
+                    onClickOrder(selectedFood?.id.orEmpty())
+                },
                 visible = pickedFood,
                 modifier = Modifier.fillMaxWidth()
                     .padding(10.dp)
