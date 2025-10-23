@@ -13,13 +13,4 @@ import javax.inject.Inject
 
 @HiltAndroidApp
 class WteApplication: Application() {
-
-    @Inject lateinit var foodSourceRepo: FoodSourceRepository
-
-    override fun onCreate() {
-        super.onCreate()
-        CoroutineScope(Dispatchers.IO).launch {
-            foodSourceRepo.insertFoodSourceList()
-        }
-    }
 }

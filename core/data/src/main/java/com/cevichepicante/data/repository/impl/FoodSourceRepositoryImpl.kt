@@ -25,11 +25,11 @@ class FoodSourceRepositoryImpl @Inject constructor(
 
     @Inject lateinit var csvHelper: CsvHelper
 
-    override suspend fun insertFoodSourceList() {
+    override suspend fun insertFoodSourceList(): Boolean {
         val isInsertedBefore = SharedPreferencesManager.isFoodDatabaseInserted(context)
         log("is food db inserted: $isInsertedBefore")
         if(isInsertedBefore) {
-            return
+            return true
         }
 
         val rawIdList = listOf(R.raw.recipe_data_220701, R.raw.recipe_data_241226)
@@ -50,7 +50,7 @@ class FoodSourceRepositoryImpl @Inject constructor(
                 }
             } else {
                 log("empty field list")
-                return
+                return false
             }
         }
 
@@ -62,16 +62,23 @@ class FoodSourceRepositoryImpl @Inject constructor(
                 it.subList(1, it.lastIndex)
             } else {
                 log("empty data list")
-                return
+                return false
             }
         }
         
         dao.insertFoodList(
-            dataList.map { 
+            dataList.mapNotNull {
+                val id = it.getOrNull(fieldList.indexOf(Field.SerialNo))
+                val cookName = it.getOrNull(fieldList.indexOf(Field.CookingName))
+
+                if(id.isNullOrEmpty() || cookName.isNullOrEmpty()) {
+                    return@mapNotNull null
+                }
+
                 FoodEntity(
-                    id = it.getOrNull(fieldList.indexOf(Field.SerialNo))?: return,
+                    id = id,
                     recipeTitle = it.getOrNull(fieldList.indexOf(Field.RecipeTitle)),
-                    cookingName = it.getOrNull(fieldList.indexOf(Field.CookingName)),
+                    cookingName = cookName,
                     registererId = it.getOrNull(fieldList.indexOf(Field.RegistererId)),
                     registererName = it.getOrNull(fieldList.indexOf(Field.RegistererName)),
                     viewCount = it.getOrNull(fieldList.indexOf(Field.ViewCount)),
@@ -94,6 +101,7 @@ class FoodSourceRepositoryImpl @Inject constructor(
             }
         )
         SharedPreferencesManager.setFoodDatabaseInserted(context, true)
+        return true
     }
 
     override suspend fun fetchFoodSourceList(): List<FoodSource> {

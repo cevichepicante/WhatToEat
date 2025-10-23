@@ -7,7 +7,7 @@ import com.cevichepicante.model.FoodSource
 
 interface FoodSourceRepository {
 
-    suspend fun insertFoodSourceList()
+    suspend fun insertFoodSourceList(): Boolean
 
     suspend fun fetchFoodSourceList(): List<FoodSource>
 
