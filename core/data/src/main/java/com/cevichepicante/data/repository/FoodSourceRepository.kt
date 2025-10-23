@@ -15,4 +15,6 @@ interface FoodSourceRepository {
         context: Context,
         foodId: String
     ): FoodRecipe?
+
+    fun getMaterialList(materialString: String): List<Pair<String, List<String>>>
 }
