@@ -2,34 +2,46 @@ package com.cevichepicante.data.repository.impl
 
 import android.content.Context
 import android.util.Log
+import com.cevichepicante.common.SharedPreferencesManager
 import com.cevichepicante.data.R
 import com.cevichepicante.data.model.Field
 import com.cevichepicante.data.repository.FoodSourceRepository
 import com.cevichepicante.data.util.CsvHelper
 import com.cevichepicante.data.util.StringUtil.removeInvisibleChars
+import com.cevichepicante.database.dao.FoodDao
+import com.cevichepicante.database.model.FoodEntity
 import com.cevichepicante.model.Food
 import com.cevichepicante.model.FoodRecipe
 import com.cevichepicante.model.FoodSource
+import com.cevichepicante.model.RecipeMaterialData
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.regex.Pattern
 import javax.inject.Inject
 
 class FoodSourceRepositoryImpl @Inject constructor(
-    // TODO api service injected
+    @ApplicationContext private val context: Context,
+    private val dao: FoodDao
 ): FoodSourceRepository {
 
-    @Inject
-    lateinit var csvHelper: CsvHelper
+    @Inject lateinit var csvHelper: CsvHelper
 
-    override suspend fun fetchFoodSourceList(context: Context): List<FoodSource> {
-        val fetched = csvHelper.readAll(
-            context = context,
-            csvResId = R.raw.recipe_data_220701
-        )
+    override suspend fun insertFoodSourceList() {
+        val isInsertedBefore = SharedPreferencesManager.isFoodDatabaseInserted(context)
+        log("is food db inserted: $isInsertedBefore")
+        if(isInsertedBefore) {
+            return
+        }
+
+        val rawIdList = listOf(R.raw.recipe_data_220701, R.raw.recipe_data_241226)
+        val readList = mutableListOf<List<String>>()
+        rawIdList.forEach { 
+            readList.addAll(csvHelper.readAll(context, it))
+        }
 
         /*
             Set data field index list.
          */
-        val fieldList = fetched.firstOrNull().orEmpty().let { list ->
+        val fieldList = readList.firstOrNull().orEmpty().let { list ->
             if(list.isNotEmpty()) {
                 list.mapIndexed { pos, field ->
                     Field.entries.find { entry ->
@@ -37,55 +49,83 @@ class FoodSourceRepositoryImpl @Inject constructor(
                     }
                 }
             } else {
-                Log.d("JSY", "fetched list empty")
-                return listOf()
+                log("empty field list")
+                return
             }
         }
 
         /*
             Set data of real content list.
          */
-        val dataList = fetched.let {
+        val dataList = readList.let {
             if(it.size > 1) {
                 it.subList(1, it.lastIndex)
             } else {
-                Log.d("JSY", "no data")
-                return listOf()
+                log("empty data list")
+                return
             }
         }
-        return dataList.map { data ->
+        
+        dao.insertFoodList(
+            dataList.map { 
+                FoodEntity(
+                    id = it.getOrNull(fieldList.indexOf(Field.SerialNo))?: return,
+                    recipeTitle = it.getOrNull(fieldList.indexOf(Field.RecipeTitle)),
+                    cookingName = it.getOrNull(fieldList.indexOf(Field.CookingName)),
+                    registererId = it.getOrNull(fieldList.indexOf(Field.RegistererId)),
+                    registererName = it.getOrNull(fieldList.indexOf(Field.RegistererName)),
+                    viewCount = it.getOrNull(fieldList.indexOf(Field.ViewCount)),
+                    recommendedCount = it.getOrNull(fieldList.indexOf(Field.RecommendedCount)),
+                    scrappedCount = it.getOrNull(fieldList.indexOf(Field.ScrappedCount)),
+                    cookingMethodCategory = it.getOrNull(fieldList.indexOf(Field.CookingMethodCategory)),
+                    cookingOccasionCategory = it.getOrNull(fieldList.indexOf(Field.CookingOccasionCategory)),
+                    cookingMaterialCategory = it.getOrNull(fieldList.indexOf(Field.CookingMaterialCategory)),
+                    cookingKindCategory = it.getOrNull(fieldList.indexOf(Field.CookingKindCategory)),
+                    cookingIntro = it.getOrNull(fieldList.indexOf(Field.CookingIntro)),
+                    cookingMaterialContent = it.getOrNull(fieldList.indexOf(Field.CookingMaterialContent)),
+                    cookingAmount = it.getOrNull(fieldList.indexOf(Field.CookingAmount)),
+                    cookingLevel = it.getOrNull(fieldList.indexOf(Field.CookingLevel)),
+                    cookingTime = it.getOrNull(fieldList.indexOf(Field.CookingTime)),
+                    registeredTime = it.getOrNull(fieldList.indexOf(Field.RegisteredTime)),
+                    imageUrl = it.getOrNull(fieldList.indexOf(Field.FoodImageUrl))
+                )
+            }.also {
+                log("food list size: ${it.size}")
+            }
+        )
+        SharedPreferencesManager.setFoodDatabaseInserted(context, true)
+    }
+
+    override suspend fun fetchFoodSourceList(): List<FoodSource> {
+        return dao.getFoodList().map { 
             FoodSource(
-                serialNo = data.getOrNull(fieldList.indexOf(Field.SerialNo))?: return listOf(),
-                recipeTitle = data.getOrNull(fieldList.indexOf(Field.RecipeTitle)),
-                cookingName = data.getOrNull(fieldList.indexOf(Field.CookingName)),
-                registererId = data.getOrNull(fieldList.indexOf(Field.RegistererId)),
-                registererName = data.getOrNull(fieldList.indexOf(Field.RegistererName)),
-                viewCount = data.getOrNull(fieldList.indexOf(Field.ViewCount)),
-                recommendedCount = data.getOrNull(fieldList.indexOf(Field.RecommendedCount)),
-                scrappedCount = data.getOrNull(fieldList.indexOf(Field.ScrappedCount)),
-                cookingMethodCategory = data.getOrNull(fieldList.indexOf(Field.CookingMethodCategory)),
-                cookingOccasionCategory = data.getOrNull(fieldList.indexOf(Field.CookingOccasionCategory)),
-                cookingMaterialCategory = data.getOrNull(fieldList.indexOf(Field.CookingMaterialCategory)),
-                cookingKindCategory = data.getOrNull(fieldList.indexOf(Field.CookingKindCategory)),
-                cookingIntro = data.getOrNull(fieldList.indexOf(Field.CookingIntro)),
-                cookingMaterialContent = data.getOrNull(fieldList.indexOf(Field.CookingMaterialContent)),
-                cookingAmount = data.getOrNull(fieldList.indexOf(Field.CookingAmount)),
-                cookingLevel = data.getOrNull(fieldList.indexOf(Field.CookingLevel)),
-                cookingTime = data.getOrNull(fieldList.indexOf(Field.CookingTime)),
-                registeredTime = data.getOrNull(fieldList.indexOf(Field.RegisteredTime)),
-                imageUrl = data.getOrNull(fieldList.indexOf(Field.FoodImageUrl))
+                serialNo = it.id,
+                recipeTitle = it.recipeTitle,
+                cookingName = it.cookingName,
+                registererId = it.registererId,
+                registererName = it.registererName,
+                viewCount = it.viewCount,
+                recommendedCount = it.recommendedCount,
+                scrappedCount = it.scrappedCount,
+                cookingMethodCategory = it.cookingMethodCategory,
+                cookingOccasionCategory = it.cookingOccasionCategory,
+                cookingMaterialCategory = it.cookingMaterialCategory,
+                cookingKindCategory = it.cookingKindCategory,
+                cookingIntro = it.cookingIntro,
+                cookingMaterialContent = it.cookingMaterialContent,
+                cookingAmount = it.cookingAmount,
+                cookingLevel = it.cookingLevel,
+                cookingTime = it.cookingTime,
+                registeredTime = it.registeredTime,
+                imageUrl = it.imageUrl
             )
         }
     }
 
-    override suspend fun fetchFoodList(context: Context): List<Food> {
-        val foodSources = fetchFoodSourceList(context)
-        foodSources.getOrNull(10)?.let {
-            getMaterialList(it.cookingMaterialContent.orEmpty())
-        }
-        return foodSources.map {
+    override suspend fun fetchFoodList(): List<Food> {
+        return dao.getFoodList().map {
             Food(
-                id = it.serialNo,
+                id = it.id,
                 name = it.cookingName.orEmpty(),
                 type = it.cookingKindCategory.orEmpty(),
                 servingOccasion = it.cookingOccasionCategory.orEmpty()
@@ -93,36 +133,64 @@ class FoodSourceRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchRecipe(
-        context: Context,
-        foodId: String
-    ): FoodRecipe? {
-        val foodSources = fetchFoodSourceList(context)
-        return foodSources.find {
-            it.serialNo == foodId
-        }?.let {
-            val materialString = it.cookingMaterialContent.orEmpty()
-            val ingredientString = materialString
-                .substringBefore(context.getString(R.string.string_index_recipe_seasoning))
-                .substringAfter(context.getString(R.string.string_index_recipe_ingredients))
-            val seasoningString = materialString
-                .substringAfter(context.getString(R.string.string_index_recipe_seasoning))
+    override suspend fun fetchFoodDetail(foodId: String): FoodSource? {
+        return dao.getFoodDetail(foodId).let {
+            if(it != null) {
+                FoodSource(
+                    serialNo = it.id,
+                    recipeTitle = it.recipeTitle,
+                    cookingName = it.cookingName,
+                    registererId = it.registererId,
+                    registererName = it.registererName,
+                    viewCount = it.viewCount,
+                    recommendedCount = it.recommendedCount,
+                    scrappedCount = it.scrappedCount,
+                    cookingMethodCategory = it.cookingMethodCategory,
+                    cookingOccasionCategory = it.cookingOccasionCategory,
+                    cookingMaterialCategory = it.cookingMaterialCategory,
+                    cookingKindCategory = it.cookingKindCategory,
+                    cookingIntro = it.cookingIntro,
+                    cookingMaterialContent = it.cookingMaterialContent,
+                    cookingAmount = it.cookingAmount,
+                    cookingLevel = it.cookingLevel,
+                    cookingTime = it.cookingTime,
+                    registeredTime = it.registeredTime,
+                    imageUrl = it.imageUrl
+                )
+            } else {
+                null
+            }
+        }
+    }
 
-            FoodRecipe(
-                id = foodId,
-                name = it.cookingName.orEmpty(),
-                time = it.cookingTime.orEmpty(),
-                foodType = it.cookingKindCategory.orEmpty(),
-                level = it.cookingLevel.orEmpty(),
-                ingredients = ingredientString.split("|").map { it.trim() },
-                seasonings = seasoningString.split("|").map { it.trim() }
-            )
-        }?: return null
+    override suspend fun fetchFoodRecipe(foodId: String): FoodRecipe? {
+        return dao.getFoodDetail(foodId).let {
+            if(it != null) {
+                FoodRecipe(
+                    id = it.id,
+                    name = it.cookingName.orEmpty(),
+                    time = it.cookingTime.orEmpty(),
+                    foodType = it.cookingKindCategory.orEmpty(),
+                    level = it.cookingLevel.orEmpty(),
+                    materialList = getMaterialList(it.cookingMaterialContent.orEmpty()).map { pair ->
+                        RecipeMaterialData(
+                            category = pair.first,
+                            list = pair.second
+                        )
+                    }
+                )
+            } else {
+                null
+            }
+        }
     }
 
     override fun getMaterialList(materialString: String): List<Pair<String, List<String>>> {
-        val result = mutableListOf<Pair<String, List<String>>>()
+        if(materialString.isEmpty()) {
+            return listOf()
+        }
 
+        val result = mutableListOf<Pair<String, List<String>>>()
         val categoryPattern = Pattern.compile("\\[(.*?)\\]")
         val categoryMatcher = categoryPattern.matcher(materialString)
         val categories = mutableListOf<Pair<Int, String>>()
@@ -150,5 +218,9 @@ class FoodSourceRepositoryImpl @Inject constructor(
         }
 
         return result
+    }
+
+    private fun log(msg: String) {
+        Log.d("JSY" ,"[${javaClass.simpleName}]: $msg")
     }
 }

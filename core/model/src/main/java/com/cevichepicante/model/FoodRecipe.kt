@@ -6,7 +6,11 @@ data class FoodRecipe(
     val time: String,
     val foodType: String,
     val level: String,
-    val ingredients: List<String>,
-    val seasonings: List<String>,
+    val materialList: List<RecipeMaterialData>
 ) {
 }
+
+data class RecipeMaterialData(
+    val category: String,
+    val list: List<String>
+)

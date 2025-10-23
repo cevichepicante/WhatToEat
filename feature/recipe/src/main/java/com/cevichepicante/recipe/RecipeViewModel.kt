@@ -8,6 +8,7 @@ import com.cevichepicante.model.FoodRecipe
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,11 +29,8 @@ class RecipeViewModel @Inject constructor(
         get() = _recipeData.asStateFlow()
 
     fun getRecipe(foodId: String) {
-        viewModelScope.launch {
-            repo.fetchRecipe(
-                context = context,
-                foodId = foodId
-            ).let {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.fetchFoodRecipe(foodId).let {
                 _recipeData.emit(it)
             }
         }

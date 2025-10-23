@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.cevichepicante.model.RecipeMaterialData
 
 @Composable
 fun RecipeScreen(
@@ -43,8 +44,7 @@ fun RecipeScreen(
             )
 
             RecipeMaterialInfo(
-                ingredients = it.ingredients,
-                seasonings = it.seasonings,
+                materialList = it.materialList,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -93,8 +93,7 @@ fun RecipeMainInfo(
 
 @Composable
 fun RecipeMaterialInfo(
-    ingredients: List<String>,
-    seasonings: List<String>,
+    materialList: List<RecipeMaterialData>,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -102,16 +101,13 @@ fun RecipeMaterialInfo(
         modifier = modifier
             .padding(20.dp)
     ) {
-        RecipeMaterialForm(
-            category = "재료",
-            contents = ingredients,
-            modifier = Modifier.weight(1f)
-        )
-        RecipeMaterialForm(
-            category = "양념",
-            contents = seasonings,
-            modifier = Modifier.weight(1f)
-        )
+        materialList.forEach {
+            RecipeMaterialForm(
+                category = it.category,
+                contents = it.list,
+                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }
 

@@ -8,6 +8,7 @@ import com.cevichepicante.model.Food
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,8 +26,8 @@ class PickingFoodViewModel @Inject constructor(
         get() = _foodList.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            repo.fetchFoodList(context).let {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.fetchFoodList().let {
                 _foodList.emit(it)
             }
         }

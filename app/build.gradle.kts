@@ -46,6 +46,8 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:model"))
     implementation(project(":core:ui"))
+    implementation(project(":core:database"))
+    implementation(project(":core:common"))
     implementation(project(":feature:foodpicker"))
     implementation(project(":feature:order"))
     implementation(project(":feature:recipe"))
@@ -61,7 +63,10 @@ dependencies {
     implementation(libs.dagger.hilt)
     implementation(libs.csv)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.room)
+    implementation(libs.androidx.room.ktx)
     ksp(libs.dagger.hilt.compiler)
+    ksp(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)
 
