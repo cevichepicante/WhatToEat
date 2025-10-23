@@ -3,8 +3,16 @@ package com.cevichepicante.model
 data class Food(
     val id: String,
     val name: String,
-    val type: String,
+    val type: FoodType,
     val servingOccasion: String
+) {
+
+}
+
+data class FoodType(
+    val materialCategory: String,
+    val kindCategory: String,
+    val occasionCategory: String
 ) {
 
 }

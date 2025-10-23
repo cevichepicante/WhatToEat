@@ -4,6 +4,7 @@ import android.content.Context
 import com.cevichepicante.model.Food
 import com.cevichepicante.model.FoodRecipe
 import com.cevichepicante.model.FoodSource
+import com.cevichepicante.model.FoodType
 
 interface FoodSourceRepository {
 
@@ -12,6 +13,14 @@ interface FoodSourceRepository {
     suspend fun fetchFoodSourceList(): List<FoodSource>
 
     suspend fun fetchFoodList(): List<Food>
+
+    suspend fun fetchFoodListFiltered(type: FoodType): List<Food>
+
+    suspend fun fetchCookingKindList(): List<String>
+
+    suspend fun fetchCookingMaterialList(): List<String>
+
+    suspend fun fetchCookingOccasionList(): List<String>
 
     suspend fun fetchFoodDetail(foodId: String): FoodSource?
 

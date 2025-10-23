@@ -13,6 +13,7 @@ import com.cevichepicante.database.model.FoodEntity
 import com.cevichepicante.model.Food
 import com.cevichepicante.model.FoodRecipe
 import com.cevichepicante.model.FoodSource
+import com.cevichepicante.model.FoodType
 import com.cevichepicante.model.RecipeMaterialData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.regex.Pattern
@@ -132,13 +133,50 @@ class FoodSourceRepositoryImpl @Inject constructor(
 
     override suspend fun fetchFoodList(): List<Food> {
         return dao.getFoodList().map {
+            val foodType = FoodType(
+                materialCategory = it.cookingMaterialCategory.orEmpty(),
+                kindCategory = it.cookingKindCategory.orEmpty(),
+                occasionCategory = it.cookingOccasionCategory.orEmpty()
+            )
             Food(
                 id = it.id,
                 name = it.cookingName.orEmpty(),
-                type = it.cookingKindCategory.orEmpty(),
+                type = foodType,
                 servingOccasion = it.cookingOccasionCategory.orEmpty()
             )
         }
+    }
+
+    override suspend fun fetchFoodListFiltered(type: FoodType): List<Food> {
+        return dao.getFoodListFiltered(
+            material = type.materialCategory,
+            kind = type.kindCategory,
+            occasion = type.occasionCategory
+        ).map {
+            val foodType = FoodType(
+                materialCategory = it.cookingMaterialCategory.orEmpty(),
+                kindCategory = it.cookingKindCategory.orEmpty(),
+                occasionCategory = it.cookingOccasionCategory.orEmpty()
+            )
+            Food(
+                id = it.id,
+                name = it.cookingName.orEmpty(),
+                type = foodType,
+                servingOccasion = it.cookingOccasionCategory.orEmpty()
+            )
+        }
+    }
+
+    override suspend fun fetchCookingKindList(): List<String> {
+        return dao.getCookingKindList()
+    }
+
+    override suspend fun fetchCookingMaterialList(): List<String> {
+        return dao.getCookingMaterialList()
+    }
+
+    override suspend fun fetchCookingOccasionList(): List<String> {
+        return dao.getCookingOccasionList()
     }
 
     override suspend fun fetchFoodDetail(foodId: String): FoodSource? {
