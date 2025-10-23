@@ -19,5 +19,6 @@ data class FoodSource(
     val cookingLevel: String?,
     val cookingTime: String?,
     val registeredTime: String?,
+    val imageUrl: String?
 ) {
 }

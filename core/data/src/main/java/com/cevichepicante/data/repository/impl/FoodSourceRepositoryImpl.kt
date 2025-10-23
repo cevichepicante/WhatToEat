@@ -22,7 +22,7 @@ class FoodSourceRepositoryImpl @Inject constructor(
     override suspend fun fetchFoodSourceList(context: Context): List<FoodSource> {
         val fetched = csvHelper.readAll(
             context = context,
-            csvResId = R.raw.food_sample_data
+            csvResId = R.raw.recipe_data_220701
         )
 
         /*
@@ -71,7 +71,8 @@ class FoodSourceRepositoryImpl @Inject constructor(
                 cookingAmount = data.getOrNull(fieldList.indexOf(Field.CookingAmount)),
                 cookingLevel = data.getOrNull(fieldList.indexOf(Field.CookingLevel)),
                 cookingTime = data.getOrNull(fieldList.indexOf(Field.CookingTime)),
-                registeredTime = data.getOrNull(fieldList.indexOf(Field.RegisteredTime))
+                registeredTime = data.getOrNull(fieldList.indexOf(Field.RegisteredTime)),
+                imageUrl = data.getOrNull(fieldList.indexOf(Field.FoodImageUrl))
             )
         }
     }

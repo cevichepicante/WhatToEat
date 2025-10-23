@@ -18,5 +18,6 @@ enum class Field(val fieldName: String) {
     CookingAmount(fieldName = "CKG_INBUN_NM"),
     CookingLevel(fieldName = "CKG_DODF_NM"),
     CookingTime(fieldName = "CKG_TIME_NM"),
-    RegisteredTime(fieldName = "FIRST_REG_DT")
+    RegisteredTime(fieldName = "FIRST_REG_DT"),
+    FoodImageUrl(fieldName = "RCP_IMG_URL")
 }

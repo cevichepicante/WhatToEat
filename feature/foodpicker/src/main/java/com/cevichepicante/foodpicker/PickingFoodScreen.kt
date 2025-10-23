@@ -1,25 +1,16 @@
 package com.cevichepicante.foodpicker
 
-import android.util.Log
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -171,22 +162,35 @@ private fun FoodSlot(
         ) {
             VerticalPager(
                 state = pagerState,
+                userScrollEnabled = false,
                 modifier = Modifier.fillMaxWidth()
             ) { page ->
                 val actualIndex = page % list.size
                 val item = list.getOrNull(actualIndex)
+                val foodName = item?.name.orEmpty()
 
-                Text(
-                    text = item?.name.orEmpty(),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 15.dp)
-                        .background(Color.Gray)
-                )
+                if(foodName.isNotEmpty()) {
+                    FoodSlotItem(
+                        content = foodName,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
     }
+}
+
+@Composable
+private fun FoodSlotItem(
+    content: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = content,
+        textAlign = TextAlign.Center,
+        modifier = modifier
+            .background(Color.Gray)
+    )
 }
 
 @Composable
