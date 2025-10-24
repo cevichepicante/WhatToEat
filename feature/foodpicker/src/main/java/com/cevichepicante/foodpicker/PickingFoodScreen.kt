@@ -8,25 +8,31 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -35,11 +41,32 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.cevichepicante.composescrollshadow.HidingShadowPosition
+import com.cevichepicante.composescrollshadow.ShadowIndicatedScaffold
+import com.cevichepicante.composescrollshadow.ShadowIndicatedScrollScaffold
+import com.cevichepicante.composescrollshadow.data.ShadowSettings
+import com.cevichepicante.composescrollshadow.data.ShadowSideDirection
+import com.cevichepicante.composescrollshadow.data.ShadowSideType
 import com.cevichepicante.model.Food
 import com.cevichepicante.model.FoodType
+import com.cevichepicante.ui.common.ComponentUtil
 import com.cevichepicante.ui.common.ComponentUtil.asDp
+import com.cevichepicante.ui.common.StringUtil
+import com.cevichepicante.ui.value.SlotDrumContainer
+import com.cevichepicante.ui.value.SlotDrumContent
+import com.cevichepicante.ui.value.SlotFoodAmount
+import com.cevichepicante.ui.value.SlotFrame
+
+/**
+ *  TODO
+ *  1. food picked 상태에서 필터 적용시 결과도 변경되는 문제 해결
+ *  2. 현재 적용된 필터 보여주기
+ *
+  */
 
 @Composable
 fun PickingFoodScreen(
@@ -120,7 +147,7 @@ fun PickingFoodScreen(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
+                .weight(0.5f)
         )
         FoodSlot(
             list = foodList,
@@ -147,7 +174,7 @@ fun PickingFoodScreen(
                 pickedFood = true },
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
+                .height(100.dp)
         )
     }
 }
@@ -163,139 +190,139 @@ private fun FoodFilters(
     var foodType by remember {  
         mutableStateOf(FoodType("", "", ""))
     }
-    var occasionExpanded by remember {
-        mutableStateOf(false)
-    }
-    var materialExpanded by remember {
-        mutableStateOf(false)
-    }
-    var kindExpanded by remember {
-        mutableStateOf(false)
-    }
 
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.Top
+    Box(
+        modifier = modifier
     ) {
-        FoodFilterDropDown(
-            expanded = materialExpanded,
-            category = "주재료",
-            content = materialList,
-            modifier = Modifier.weight(1f),
-            onItemClick = {
-                foodType = foodType.copy(materialCategory = it)
-                materialExpanded = false
-            },
-            onExpandedStateRequest = { toExpanded ->
-                materialExpanded = toExpanded
-            }
-        )
-        FoodFilterDropDown(
-            expanded = kindExpanded,
-            category = "종류",
-            content = kindList,
-            modifier = Modifier.weight(1f),
-            onItemClick = {
-                foodType = foodType.copy(kindCategory = it)
-                materialExpanded = false
-            },
-            onExpandedStateRequest = { toExpanded ->
-                kindExpanded = toExpanded
-            }
-        )
-        FoodFilterDropDown(
-            expanded = occasionExpanded,
-            category = "요리 상황",
-            content = occasionList,
-            modifier = Modifier.weight(1f),
-            onItemClick = {
-                foodType = foodType.copy(occasionCategory = it)
-                materialExpanded = false
-            },
-            onExpandedStateRequest = { toExpanded ->
-                occasionExpanded = toExpanded
-            }
-        )
-
-        Button(
-            modifier = Modifier.size(30.dp),
-            onClick = {
-                onRequestFilter(foodType)
-            }
-        ) { 
-            Text(
-                text = "설정"
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            FoodFilterMenu(
+                category = "주재료",
+                content = materialList,
+                onItemClick = {
+                    foodType = foodType.copy(materialCategory = it)
+                }
             )
+            FoodFilterMenu(
+                category = "종류",
+                content = kindList,
+                onItemClick = {
+                    foodType = foodType.copy(kindCategory = it)
+                }
+            )
+            FoodFilterMenu(
+                category = "요리 상황",
+                content = occasionList,
+                onItemClick = {
+                    foodType = foodType.copy(occasionCategory = it)
+                }
+            )
+
+            Button(
+                contentPadding = PaddingValues(1.dp),
+                colors = ComponentUtil.getSlotFilterSetButtonColors(),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .wrapContentWidth(),
+                onClick = {
+                    onRequestFilter(foodType)
+                }
+            ) {
+                Text(
+                    text = "적용",
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun FoodFilterDropDown(
-    expanded: Boolean,
+private fun FoodFilterMenu(
     category: String,
     content: List<String>,
-    onExpandedStateRequest: (Boolean) -> Unit,
     onItemClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var selectedContent by rememberSaveable {
-        mutableStateOf("")
+    val listState = rememberLazyListState()
+    val list by remember(content) {
+        mutableStateOf(
+            content.toMutableList().also {
+                it.add(0, "전체")
+            }.toList()
+        )
+    }
+    var selectedIndex by rememberSaveable {
+        mutableIntStateOf(0)
     }
 
-    Column(
-        modifier = modifier
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = category,
+            modifier = Modifier.padding(horizontal = 8.dp)
         )
-        Text(
-            text = selectedContent.ifEmpty { "All" },
-            modifier = Modifier
-                .clickable {
-                    onExpandedStateRequest(true)
-                }
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = {
-                onExpandedStateRequest(false)
-            },
-            modifier = Modifier.height(200.dp),
-            content = {
-                FoodFilterDropDownItem(
-                    content = "All",
-                    onClick = {
-                        selectedContent = ""
-                        onItemClick("")
-                    }
+        ShadowIndicatedScrollScaffold(
+            hidingShadowIndex = HidingShadowPosition.FIRST,
+            listState = listState,
+            shadowSettings = ShadowSettings(
+                shape = RoundedCornerShape(8.dp),
+                color = Color.Gray.copy(alpha = 0.5f),
+                blurDp = 8.dp,
+                sideType = ShadowSideType.SingleSide(
+                    direction = ShadowSideDirection.Left,
+                    drawInner = true
                 )
-                content.forEach { 
-                    FoodFilterDropDownItem(
-                        content = it,
+            )
+        ) {
+            LazyRow {
+                itemsIndexed(
+                    items = list
+                ) { pos, item ->
+                    FoodFilterItem(
+                        content = item,
+                        selected = selectedIndex == pos,
                         onClick = {
-                            selectedContent = it
-                            onItemClick(it)
+                            onItemClick(item)
+                            selectedIndex = pos
                         }
                     )
                 }
             }
-        )
+        }
     }
 }
 
 @Composable
-private fun FoodFilterDropDownItem(
+private fun FoodFilterItem(
     content: String,
-    onClick: () -> Unit
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    DropdownMenuItem(
-        text = {
-            FoodFilterDropDownText(
-                text = content
-            )
+    Text(
+        text = content,
+        color = if(selected) {
+            Color.Black
+        } else {
+            Color.Gray
         },
-        onClick = onClick
+        modifier = modifier
+            .background(
+                color = if(selected) {
+                    Color.Gray.copy(alpha = 0.2f)
+                } else {
+                    Color.Transparent
+                },
+                shape = RoundedCornerShape(10.dp)
+            )
+            .clickable {
+                onClick()
+            }
+            .padding(horizontal = 8.dp, vertical = 4.dp)
     )
 }
 
@@ -347,58 +374,69 @@ private fun FoodSlot(
     }
 
     Column(
-        modifier = modifier
-            .background(
-                color = Color.Red.copy(alpha = 0.1f),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .padding(15.dp)
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
+                .height(300.dp)
                 .background(
-                    color = Color.White,
+                    color = SlotFrame,
                     shape = RoundedCornerShape(16.dp)
                 )
+                .padding(20.dp)
         ) {
-            if(list.isEmpty()) {
-                FoodSlotShutter(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            color = Color.White,
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                )
-            } else {
-                VerticalPager(
-                    state = pagerState,
-                    userScrollEnabled = false,
-                    modifier = Modifier.fillMaxWidth()
-                ) { page ->
-                    val actualIndex = page % list.size
-                    val item = list.getOrNull(actualIndex)
-                    val foodName = item?.name.orEmpty()
+            Text(
+                text = "${StringUtil.getNumberFormat(list.size)} 가지 메뉴",
+                color = SlotFoodAmount,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
 
-                    if(foodName.isNotEmpty()) {
-                        FoodSlotItem(
-                            content = foodName,
-                            modifier = Modifier.fillMaxSize()
-                        )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                if(list.isEmpty()) {
+                    FoodSlotShutter(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                color = Color.White,
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                    )
+                } else {
+                    VerticalPager(
+                        state = pagerState,
+                        userScrollEnabled = false,
+                        modifier = Modifier.fillMaxWidth()
+                    ) { page ->
+                        val actualIndex = page % list.size
+                        val item = list.getOrNull(actualIndex)
+                        val foodName = item?.name.orEmpty()
+
+                        if(foodName.isNotEmpty()) {
+                            FoodSlotItem(
+                                content = foodName,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                     }
                 }
             }
+            FoodTreatButtons(
+                onClickCook = onClickRecipe,
+                onClickOrder = onClickOrder,
+                enabled = enabledButton,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+            )
         }
-        FoodTreatButtons(
-            onClickCook = onClickRecipe,
-            onClickOrder = onClickOrder,
-            enabled = enabledButton,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-        )
     }
 }
 
@@ -411,8 +449,11 @@ private fun FoodSlotItem(
         text = content,
         textAlign = TextAlign.Center,
         fontSize = 20.asDp(),
+        color = SlotDrumContent,
+        fontWeight = FontWeight.SemiBold,
         modifier = modifier
-            .background(Color.Gray)
+            .background(SlotDrumContainer)
+            .wrapContentHeight(Alignment.CenterVertically)
     )
 }
 
@@ -424,9 +465,11 @@ private fun FoodSlotShutter(
         modifier = modifier
     ) {
         Text(
-            text = "?",
-            modifier = Modifier
-                .fillMaxWidth()
+            text = "준비중",
+            color = SlotDrumContent,
+            textAlign = TextAlign.Center,
+            modifier = modifier
+                .wrapContentHeight(Alignment.CenterVertically)
         )
     }
 }
@@ -445,8 +488,6 @@ private fun SlotButtons(
     ) {
         SlotButton(
             text = "Start",
-            textColor = Color.Black,
-            containerColor = Color.Gray,
             enabled = enabled,
             onClick = onClickStart,
             modifier = Modifier.weight(1f)
@@ -454,8 +495,6 @@ private fun SlotButtons(
 
         SlotButton(
             text = "Stop",
-            textColor = Color.Black,
-            containerColor = Color.Gray,
             enabled = enabled,
             onClick = onClickStop,
             modifier = Modifier.weight(1f)
@@ -474,18 +513,14 @@ private fun FoodTreatButtons(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(30.dp)
     ) {
-        SlotButton(
+        SlotFoodTreatButton(
             text = "Cook",
-            textColor = Color.Black,
-            containerColor = Color.Transparent,
             enabled = enabled,
             onClick = onClickCook,
             modifier = Modifier.weight(1f)
         )
-        SlotButton(
+        SlotFoodTreatButton(
             text = "Order",
-            textColor = Color.Black,
-            containerColor = Color.Transparent,
             enabled = enabled,
             onClick = onClickOrder,
             modifier = Modifier.weight(1f)
@@ -496,25 +531,50 @@ private fun FoodTreatButtons(
 @Composable
 private fun SlotButton(
     text: String,
-    textColor: Color,
-    containerColor: Color,
     enabled: Boolean = true,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Button(
         enabled = enabled,
+        colors = ComponentUtil.getSlotButtonColors(),
         onClick = onClick,
         modifier = modifier
-            .padding(vertical = 8.dp)
-            .background(
-                color = containerColor,
-                shape = RoundedCornerShape(8.dp)
-            )
     ) {
         Text(
-            text = text,
-            color = textColor
+            text = text
         )
+    }
+}
+
+@Composable
+private fun SlotFoodTreatButton(
+    text: String,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val shape = RoundedCornerShape(8.dp)
+
+    ShadowIndicatedScaffold(
+        modifier = modifier,
+        shadowSettings = ShadowSettings(
+            shape = shape,
+            color = SlotDrumContent.copy(alpha = 0.05f),
+            blurDp = 10.dp,
+            sideType = ShadowSideType.AllSide(0f, 8f)
+        )
+    ) {
+        Button(
+            enabled = enabled,
+            colors = ComponentUtil.getSlotFoodTreatButtonColors(),
+            shape = shape,
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = text
+            )
+        }
     }
 }

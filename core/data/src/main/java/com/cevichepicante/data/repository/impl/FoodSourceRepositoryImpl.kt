@@ -7,7 +7,6 @@ import com.cevichepicante.data.R
 import com.cevichepicante.data.model.Field
 import com.cevichepicante.data.repository.FoodSourceRepository
 import com.cevichepicante.data.util.CsvHelper
-import com.cevichepicante.data.util.StringUtil.removeInvisibleChars
 import com.cevichepicante.database.dao.FoodDao
 import com.cevichepicante.database.model.FoodEntity
 import com.cevichepicante.model.Food
@@ -268,5 +267,9 @@ class FoodSourceRepositoryImpl @Inject constructor(
 
     private fun log(msg: String) {
         Log.d("JSY" ,"[${javaClass.simpleName}]: $msg")
+    }
+
+    private fun String.removeInvisibleChars(): String {
+        return this.replace(Regex("[\\[{Z}\\p{C}]"), "")
     }
 }

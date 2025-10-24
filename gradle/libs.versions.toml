@@ -20,6 +20,7 @@ androidxHiltNavigationCompose = "1.2.0"
 room = "2.8.3"
 uiUnitAndroid = "1.9.3"
 runtimeAndroid = "1.9.3"
+composeShadow = "1.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -48,6 +49,7 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-ui-unit-android = { group = "androidx.compose.ui", name = "ui-unit-android", version.ref = "uiUnitAndroid" }
 androidx-runtime-android = { group = "androidx.compose.runtime", name = "runtime-android", version.ref = "runtimeAndroid" }
+cevichepicante-compose-shadow = { group = "com.github.cevichepicante", name = "ComposeScrollShadow", version.ref = "composeShadow" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
