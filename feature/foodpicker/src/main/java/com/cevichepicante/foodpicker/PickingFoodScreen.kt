@@ -111,46 +111,44 @@ fun PickingFoodScreen(
         modifier = modifier
             .padding(20.dp)
     ) {
-        if(foodList.isNotEmpty()) {
-            FoodFilters(
-                materialList = cookingMaterialList,
-                kindList = cookingKindList,
-                occasionList = cookingOccasionList,
-                onRequestFilter = {
-                    viewModel.setFoodFilter(it)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            )
-            FoodSlot(
-                list = foodList,
-                pagerState = pagerState,
-                spin = spinSlot,
-                enabledButton = pickedFood,
-                onClickRecipe = {
-                    onClickRecipe(selectedFood?.id.orEmpty())
-                },
-                onClickOrder = {
-                    onClickOrder(selectedFood?.id.orEmpty())
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            )
-            SlotButtons(
-                onClickStart = {
-                    spinSlot = true
-                    pickedFood = false },
-                onClickStop = {
-                    spinSlot = false
-                    pickedFood = true },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            )
-        }
-
+        FoodFilters(
+            materialList = cookingMaterialList,
+            kindList = cookingKindList,
+            occasionList = cookingOccasionList,
+            onRequestFilter = {
+                viewModel.setFoodFilter(it)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        )
+        FoodSlot(
+            list = foodList,
+            pagerState = pagerState,
+            spin = spinSlot,
+            enabledButton = pickedFood,
+            onClickRecipe = {
+                onClickRecipe(selectedFood?.id.orEmpty())
+            },
+            onClickOrder = {
+                onClickOrder(selectedFood?.id.orEmpty())
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        )
+        SlotButtons(
+            enabled = foodList.isNotEmpty(),
+            onClickStart = {
+                spinSlot = true
+                pickedFood = false },
+            onClickStop = {
+                spinSlot = false
+                pickedFood = true },
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        )
     }
 }
 
@@ -186,6 +184,7 @@ private fun FoodFilters(
             modifier = Modifier.weight(1f),
             onItemClick = {
                 foodType = foodType.copy(materialCategory = it)
+                materialExpanded = false
             },
             onExpandedStateRequest = { toExpanded ->
                 materialExpanded = toExpanded
@@ -198,6 +197,7 @@ private fun FoodFilters(
             modifier = Modifier.weight(1f),
             onItemClick = {
                 foodType = foodType.copy(kindCategory = it)
+                materialExpanded = false
             },
             onExpandedStateRequest = { toExpanded ->
                 kindExpanded = toExpanded
@@ -210,6 +210,7 @@ private fun FoodFilters(
             modifier = Modifier.weight(1f),
             onItemClick = {
                 foodType = foodType.copy(occasionCategory = it)
+                materialExpanded = false
             },
             onExpandedStateRequest = { toExpanded ->
                 occasionExpanded = toExpanded
@@ -238,7 +239,7 @@ private fun FoodFilterDropDown(
     onItemClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var selectedContent by remember {
+    var selectedContent by rememberSaveable {
         mutableStateOf("")
     }
 
@@ -249,7 +250,7 @@ private fun FoodFilterDropDown(
             text = category,
         )
         Text(
-            text = selectedContent.ifEmpty { "-" },
+            text = selectedContent.ifEmpty { "All" },
             modifier = Modifier
                 .clickable {
                     onExpandedStateRequest(true)
@@ -262,13 +263,19 @@ private fun FoodFilterDropDown(
             },
             modifier = Modifier.height(200.dp),
             content = {
+                FoodFilterDropDownItem(
+                    content = "All",
+                    onClick = {
+                        selectedContent = ""
+                        onItemClick("")
+                    }
+                )
                 content.forEach { 
                     FoodFilterDropDownItem(
                         content = it,
                         onClick = {
                             selectedContent = it
                             onItemClick(it)
-                            onExpandedStateRequest(false)
                         }
                     )
                 }
@@ -325,7 +332,7 @@ private fun FoodSlot(
         snapshotFlow {
             pagerState.currentPage
         }.collect {
-            if(spin) {
+            if(spin && list.isNotEmpty()) {
                 val nextPage = it.inc()
                 if(nextPage in 0 .. Int.MAX_VALUE) {
                     pagerState.animateScrollToPage(
@@ -356,20 +363,31 @@ private fun FoodSlot(
                     shape = RoundedCornerShape(16.dp)
                 )
         ) {
-            VerticalPager(
-                state = pagerState,
-                userScrollEnabled = false,
-                modifier = Modifier.fillMaxWidth()
-            ) { page ->
-                val actualIndex = page % list.size
-                val item = list.getOrNull(actualIndex)
-                val foodName = item?.name.orEmpty()
+            if(list.isEmpty()) {
+                FoodSlotShutter(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                )
+            } else {
+                VerticalPager(
+                    state = pagerState,
+                    userScrollEnabled = false,
+                    modifier = Modifier.fillMaxWidth()
+                ) { page ->
+                    val actualIndex = page % list.size
+                    val item = list.getOrNull(actualIndex)
+                    val foodName = item?.name.orEmpty()
 
-                if(foodName.isNotEmpty()) {
-                    FoodSlotItem(
-                        content = foodName,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    if(foodName.isNotEmpty()) {
+                        FoodSlotItem(
+                            content = foodName,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
         }
@@ -399,7 +417,23 @@ private fun FoodSlotItem(
 }
 
 @Composable
+private fun FoodSlotShutter(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+    ) {
+        Text(
+            text = "?",
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+    }
+}
+
+@Composable
 private fun SlotButtons(
+    enabled: Boolean,
     onClickStart: () -> Unit,
     onClickStop: () -> Unit,
     modifier: Modifier = Modifier
@@ -413,6 +447,7 @@ private fun SlotButtons(
             text = "Start",
             textColor = Color.Black,
             containerColor = Color.Gray,
+            enabled = enabled,
             onClick = onClickStart,
             modifier = Modifier.weight(1f)
         )
@@ -421,6 +456,7 @@ private fun SlotButtons(
             text = "Stop",
             textColor = Color.Black,
             containerColor = Color.Gray,
+            enabled = enabled,
             onClick = onClickStop,
             modifier = Modifier.weight(1f)
         )
