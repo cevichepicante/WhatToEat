@@ -141,7 +141,6 @@ class FoodSourceRepositoryImpl @Inject constructor(
                 id = it.id,
                 name = it.cookingName.orEmpty(),
                 type = foodType,
-                servingOccasion = it.cookingOccasionCategory.orEmpty()
             )
         }
     }
@@ -161,7 +160,6 @@ class FoodSourceRepositoryImpl @Inject constructor(
                 id = it.id,
                 name = it.cookingName.orEmpty(),
                 type = foodType,
-                servingOccasion = it.cookingOccasionCategory.orEmpty()
             )
         }
     }

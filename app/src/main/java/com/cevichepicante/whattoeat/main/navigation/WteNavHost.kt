@@ -5,7 +5,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.cevichepicante.foodpicker.navigation.FoodPickerBaseRoute
-import com.cevichepicante.foodpicker.navigation.FoodPickerRoute
 import com.cevichepicante.foodpicker.navigation.pickingFoodScreen
 import com.cevichepicante.order.navigation.navigateToOrder
 import com.cevichepicante.order.navigation.orderScreen

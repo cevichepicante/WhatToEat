@@ -1,6 +1,6 @@
 package com.cevichepicante.common
 
-object UiUtil {
+object FormatUtil {
 
     private val minSec = 60
     private val hourSec = minSec * 60

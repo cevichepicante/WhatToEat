@@ -5,6 +5,8 @@ import androidx.compose.ui.graphics.Color
 private val SlotBaseColor = Color(0xFFF7EBD5)
 private val ContentBaseColor = Color.Black.copy(0.8f)
 private val ContentDisabledBaseColor = Color.Gray.copy(alpha = 0.6f)
+
+val ShadowColor = Color(0X08000000)
 val SlotFrame = SlotBaseColor.copy(alpha = 0.8f)
 val SlotFoodAmount = Color.Gray
 val SlotDrumContainer = Color.White

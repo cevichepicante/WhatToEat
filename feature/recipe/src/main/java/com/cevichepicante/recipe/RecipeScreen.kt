@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.cevichepicante.model.RecipeMaterialData
-import com.cevichepicante.ui.common.ComponentUtil.asDp
+import com.cevichepicante.ui.util.ComponentUtil.asDp
 import com.cevichepicante.ui.value.SlotFrame
 
 @Composable

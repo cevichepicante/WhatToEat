@@ -4,7 +4,6 @@ data class Food(
     val id: String,
     val name: String,
     val type: FoodType,
-    val servingOccasion: String
 ) {
 
 }

@@ -1,4 +1,4 @@
-package com.cevichepicante.ui.common
+package com.cevichepicante.ui.util
 
 import java.text.NumberFormat
 import java.util.Locale

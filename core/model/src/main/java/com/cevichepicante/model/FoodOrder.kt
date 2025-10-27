@@ -10,7 +10,8 @@ data class FoodOrderReq(
 }
 
 data class FoodOrderRes(
-    val foodName: String,
+    val orderId: String,
+    val foodId: String,
     val address: String,
     val clientName: String,
     val price: Int,

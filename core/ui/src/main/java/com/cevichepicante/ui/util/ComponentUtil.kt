@@ -1,4 +1,4 @@
-package com.cevichepicante.ui.common
+package com.cevichepicante.ui.util
 
 import androidx.compose.material3.ButtonColors
 import androidx.compose.runtime.Composable
@@ -55,4 +55,6 @@ object ComponentUtil {
             disabledContentColor = SlotFilterSetButtonDisabledContent
         )
     }
+
+    // TODO: bottom border with drawBehind
 }

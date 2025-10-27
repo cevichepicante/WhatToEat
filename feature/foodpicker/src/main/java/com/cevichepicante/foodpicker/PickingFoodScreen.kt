@@ -14,27 +14,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -43,7 +38,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -55,20 +49,13 @@ import com.cevichepicante.composescrollshadow.data.ShadowSideDirection
 import com.cevichepicante.composescrollshadow.data.ShadowSideType
 import com.cevichepicante.model.Food
 import com.cevichepicante.model.FoodType
-import com.cevichepicante.ui.common.ComponentUtil
-import com.cevichepicante.ui.common.ComponentUtil.asDp
-import com.cevichepicante.ui.common.StringUtil
+import com.cevichepicante.ui.util.ComponentUtil
+import com.cevichepicante.ui.util.ComponentUtil.asDp
+import com.cevichepicante.ui.util.StringUtil
+import com.cevichepicante.ui.value.ShadowColor
 import com.cevichepicante.ui.value.SlotDrumContainer
 import com.cevichepicante.ui.value.SlotDrumContent
-import com.cevichepicante.ui.value.SlotFoodAmount
 import com.cevichepicante.ui.value.SlotFrame
-
-/**
- *  TODO
- *  1. food picked 상태에서 필터 적용시 결과도 변경되는 문제 해결
- *  2. 현재 적용된 필터 보여주기
- *
-  */
 
 @Composable
 fun PickingFoodScreen(
@@ -157,6 +144,7 @@ fun PickingFoodScreen(
         FoodSlot(
             list = foodList,
             pagerState = pagerState,
+            foodFilter = foodFilter,
             spin = spinSlot,
             enabledButton = pickedFood,
             onClickRecipe = {
@@ -302,41 +290,47 @@ private fun FoodFilterMenu(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = category,
-            modifier = Modifier.padding(horizontal = 8.dp)
-        )
         ShadowIndicatedScrollScaffold(
             hidingShadowIndex = HidingShadowPosition.FIRST,
             listState = listState,
             shadowSettings = ShadowSettings(
                 shape = RoundedCornerShape(8.dp),
-                color = Color.Gray.copy(alpha = 0.5f),
-                blurDp = 8.dp,
+                color = ShadowColor,
+                blurDp = 10.dp,
                 sideType = ShadowSideType.SingleSide(
-                    direction = ShadowSideDirection.Left,
-                    drawInner = true
+                    direction = ShadowSideDirection.Right,
+                    drawInner = false
                 )
             )
         ) {
-            LazyRow {
-                itemsIndexed(
-                    items = list
-                ) { pos, item ->
-                    FoodFilterItem(
-                        content = item,
-                        selected = selected.let {
-                            if(it.isNotEmpty()) {
-                                it == item
-                            } else {
-                                pos == 0
-                            }
-                        },
-                        onClick = {
-                            onItemClick(item)
+            Text(
+                text = category,
+                modifier = Modifier
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)
+                    ).padding(horizontal = 8.dp)
+            )
+        }
+        LazyRow(
+            state = listState
+        ) {
+            itemsIndexed(
+                items = list
+            ) { pos, item ->
+                FoodFilterItem(
+                    content = item,
+                    selected = selected.let {
+                        if(it.isNotEmpty()) {
+                            it == item
+                        } else {
+                            pos == 0
                         }
-                    )
-                }
+                    },
+                    onClick = {
+                        onItemClick(item)
+                    }
+                )
             }
         }
     }
@@ -376,6 +370,7 @@ private fun FoodFilterItem(
 private fun FoodSlot(
     list: List<Food>,
     pagerState: PagerState,
+    foodFilter: FoodType,
     spin: Boolean,
     enabledButton: Boolean,
     onClickRecipe: () -> Unit,
@@ -424,12 +419,13 @@ private fun FoodSlot(
                 )
                 .padding(20.dp)
         ) {
-            Text(
-                text = "${StringUtil.getNumberFormat(list.size)} 가지 메뉴",
-                color = SlotFoodAmount,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
+            if(list.isNotEmpty()) {
+                SlotInfo(
+                    foodCount = list.size,
+                    filter = foodFilter,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -473,6 +469,43 @@ private fun FoodSlot(
             )
         }
     }
+}
+
+@Composable
+private fun SlotInfo(
+    foodCount: Int,
+    filter: FoodType,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        filter.let {
+            SlotInfoFoodFilter(it.materialCategory.ifEmpty { "전체" })
+            SlotInfoFoodFilter(it.kindCategory.ifEmpty { "전체" })
+            SlotInfoFoodFilter(it.occasionCategory.ifEmpty { "전체" })
+        }
+        Text(
+            text = "${StringUtil.getNumberFormat(foodCount)} 가지 메뉴",
+            modifier = Modifier.weight(1f),
+            textAlign = TextAlign.End
+        )
+    }
+}
+
+@Composable
+private fun SlotInfoFoodFilter(content: String) {
+    Text(
+        text = content,
+        modifier = Modifier
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .padding(vertical = 4.dp, horizontal = 8.dp)
+    )
 }
 
 @Composable
