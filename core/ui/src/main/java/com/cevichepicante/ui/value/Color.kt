@@ -21,6 +21,8 @@ val SlotFoodTreatButtonContainer = SlotBaseColor
 val SlotFilterCategory = Color.Black
 val SlotFilterSelectedOption = Color.Black
 val SlotFilterSetButtonContent = ContentBaseColor
+val SlotFilterSetButtonDisabledContent = ContentDisabledBaseColor
 val SlotFilterSetButtonContainer = SlotButtonContainer
+val SlotFilterSetButtonDisabledContainer = SlotFilterSetButtonDisabledContent.copy(alpha = 0.5f)
 
 

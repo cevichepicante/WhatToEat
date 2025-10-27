@@ -11,6 +11,8 @@ import com.cevichepicante.ui.value.SlotButtonDisabledContainer
 import com.cevichepicante.ui.value.SlotButtonDisabledContent
 import com.cevichepicante.ui.value.SlotFilterSetButtonContainer
 import com.cevichepicante.ui.value.SlotFilterSetButtonContent
+import com.cevichepicante.ui.value.SlotFilterSetButtonDisabledContainer
+import com.cevichepicante.ui.value.SlotFilterSetButtonDisabledContent
 import com.cevichepicante.ui.value.SlotFoodTreatButtonContainer
 import com.cevichepicante.ui.value.SlotFoodTreatButtonContent
 import com.cevichepicante.ui.value.SlotFoodTreatButtonDisabledContent
@@ -49,8 +51,8 @@ object ComponentUtil {
         return ButtonColors(
             containerColor = SlotFilterSetButtonContainer,
             contentColor = SlotFilterSetButtonContent,
-            disabledContainerColor = SlotFilterSetButtonContent,
-            disabledContentColor = SlotFilterSetButtonContent
+            disabledContainerColor = SlotFilterSetButtonDisabledContainer,
+            disabledContentColor = SlotFilterSetButtonDisabledContent
         )
     }
 }

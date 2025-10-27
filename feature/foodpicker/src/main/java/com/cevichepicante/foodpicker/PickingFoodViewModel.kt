@@ -27,6 +27,10 @@ class PickingFoodViewModel @Inject constructor(
     val foodList: StateFlow<List<Food>>
         get() = _foodList.asStateFlow()
 
+    private val _foodFilter = MutableStateFlow(FoodType("", "", ""))
+    val foodFilter: StateFlow<FoodType>
+        get() = _foodFilter.asStateFlow()
+
     private val _cookingMaterialList = MutableStateFlow<List<String>>(listOf())
     val cookingMaterialList: StateFlow<List<String>>
         get() = _cookingMaterialList.asStateFlow()
@@ -68,6 +72,8 @@ class PickingFoodViewModel @Inject constructor(
     fun setFoodFilter(type: FoodType) {
         viewModelScope.launch(Dispatchers.IO) {
             Log.d("JSY" ,"type: $type")
+            _foodFilter.emit(type)
+
             repo.fetchFoodListFiltered(type).let {
                 _foodList.emit(it)
             }

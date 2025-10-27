@@ -25,7 +25,9 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -76,6 +78,7 @@ fun PickingFoodScreen(
     modifier: Modifier = Modifier
 ) {
     val foodList by viewModel.foodList.collectAsState(listOf())
+    val foodFilter by viewModel.foodFilter.collectAsState()
     val cookingMaterialList by viewModel.cookingMaterialList.collectAsState(listOf())
     val cookingKindList by viewModel.cookingKindList.collectAsState(listOf())
     val cookingOccasionList by viewModel.cookingOccasionList.collectAsState(listOf())
@@ -92,7 +95,7 @@ fun PickingFoodScreen(
         mutableStateOf(false)
     }
     val selectedFood by remember(
-        keys = arrayOf(foodList, pagerState, spinSlot, pickedFood)
+        keys = arrayOf(foodList, pagerState, pickedFood)
     ) {
         derivedStateOf {
             if(pickedFood) {
@@ -139,11 +142,13 @@ fun PickingFoodScreen(
             .padding(20.dp)
     ) {
         FoodFilters(
+            savedFilter = foodFilter,
             materialList = cookingMaterialList,
             kindList = cookingKindList,
             occasionList = cookingOccasionList,
             onRequestFilter = {
                 viewModel.setFoodFilter(it)
+                spinSlot = true
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -181,14 +186,21 @@ fun PickingFoodScreen(
 
 @Composable
 private fun FoodFilters(
+    savedFilter: FoodType,
     materialList: List<String>,
     kindList: List<String>,
     occasionList: List<String>,
     onRequestFilter: (FoodType) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var foodType by remember {  
-        mutableStateOf(FoodType("", "", ""))
+    var filter by remember(savedFilter) {
+        mutableStateOf(savedFilter)
+    }
+    val isValueChanged by remember(
+        key1 = savedFilter,
+        key2 = filter
+    ) {
+        mutableStateOf(filter != savedFilter)
     }
 
     Box(
@@ -201,37 +213,68 @@ private fun FoodFilters(
             FoodFilterMenu(
                 category = "주재료",
                 content = materialList,
+                selected = filter.materialCategory,
                 onItemClick = {
-                    foodType = foodType.copy(materialCategory = it)
+                    filter = filter.copy(materialCategory = it)
                 }
             )
             FoodFilterMenu(
                 category = "종류",
                 content = kindList,
+                selected = filter.kindCategory,
                 onItemClick = {
-                    foodType = foodType.copy(kindCategory = it)
+                    filter = filter.copy(kindCategory = it)
                 }
             )
             FoodFilterMenu(
                 category = "요리 상황",
                 content = occasionList,
+                selected = savedFilter.occasionCategory,
                 onItemClick = {
-                    foodType = foodType.copy(occasionCategory = it)
+                    filter = filter.copy(occasionCategory = it)
                 }
             )
+            FoodFilterButtons(
+                isFilterValueChanged = isValueChanged,
+                onRequestFilter = { onRequestFilter(filter) },
+                onResetFilter = { filter = savedFilter }
+            )
+        }
+    }
+}
 
+@Composable
+private fun FoodFilterButtons(
+    isFilterValueChanged: Boolean,
+    onRequestFilter: () -> Unit,
+    onResetFilter: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Button(
+            enabled = isFilterValueChanged,
+            contentPadding = PaddingValues(1.dp),
+            colors = ComponentUtil.getSlotFilterSetButtonColors(),
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier
+                .wrapContentWidth(),
+            onClick = onRequestFilter
+        ) {
+            Text(
+                text = "적용",
+            )
+        }
+
+        if(isFilterValueChanged) {
             Button(
-                contentPadding = PaddingValues(1.dp),
-                colors = ComponentUtil.getSlotFilterSetButtonColors(),
                 shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .wrapContentWidth(),
-                onClick = {
-                    onRequestFilter(foodType)
-                }
+                onClick = onResetFilter,
             ) {
                 Text(
-                    text = "적용",
+                    text = "초기화"
                 )
             }
         }
@@ -242,6 +285,7 @@ private fun FoodFilters(
 private fun FoodFilterMenu(
     category: String,
     content: List<String>,
+    selected: String,
     onItemClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -252,9 +296,6 @@ private fun FoodFilterMenu(
                 it.add(0, "전체")
             }.toList()
         )
-    }
-    var selectedIndex by rememberSaveable {
-        mutableIntStateOf(0)
     }
 
     Row(
@@ -284,10 +325,15 @@ private fun FoodFilterMenu(
                 ) { pos, item ->
                     FoodFilterItem(
                         content = item,
-                        selected = selectedIndex == pos,
+                        selected = selected.let {
+                            if(it.isNotEmpty()) {
+                                it == item
+                            } else {
+                                pos == 0
+                            }
+                        },
                         onClick = {
                             onItemClick(item)
-                            selectedIndex = pos
                         }
                     )
                 }
@@ -312,7 +358,7 @@ private fun FoodFilterItem(
         },
         modifier = modifier
             .background(
-                color = if(selected) {
+                color = if (selected) {
                     Color.Gray.copy(alpha = 0.2f)
                 } else {
                     Color.Transparent
@@ -323,17 +369,6 @@ private fun FoodFilterItem(
                 onClick()
             }
             .padding(horizontal = 8.dp, vertical = 4.dp)
-    )
-}
-
-@Composable
-private fun FoodFilterDropDownText(
-    text: String,
-    modifier: Modifier = Modifier
-) {
-    Text(
-        text = text,
-        modifier = modifier
     )
 }
 
