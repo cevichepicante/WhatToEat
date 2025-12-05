@@ -2,7 +2,13 @@ package com.cevichepicante.ui.util
 
 import androidx.compose.material3.ButtonColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.cevichepicante.ui.value.SlotButtonContainer
@@ -56,5 +62,21 @@ object ComponentUtil {
         )
     }
 
-    // TODO: bottom border with drawBehind
+    @Composable
+    fun Modifier.bottomBorder(
+        color: Color,
+        width: Dp
+    ): Modifier {
+        return this.then(
+            Modifier.drawBehind {
+                val strokeWidth = width.toPx()
+                drawLine(
+                    color = color,
+                    start = Offset(0f, size.height),
+                    end = Offset(size.width, size.height),
+                    strokeWidth = strokeWidth,
+                )
+            }
+        )
+    }
 }

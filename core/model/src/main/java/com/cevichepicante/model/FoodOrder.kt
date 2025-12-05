@@ -5,7 +5,8 @@ data class FoodOrderReq(
     val address: String,
     val clientName: String,
     val clientNumber: String,
-    val price: Int
+    val foodAmount: Int,
+    val foodPrice: Int
 ) {
 }
 

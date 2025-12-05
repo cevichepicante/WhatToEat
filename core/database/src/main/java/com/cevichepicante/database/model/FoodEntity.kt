@@ -24,6 +24,7 @@ data class FoodEntity(
     @ColumnInfo(name = "cookingLevel") val cookingLevel: String?,
     @ColumnInfo(name = "cookingTime") val cookingTime: String?,
     @ColumnInfo(name = "registeredTime") val registeredTime: String?,
-    @ColumnInfo(name = "imageUrl") val imageUrl: String?
+    @ColumnInfo(name = "imageUrl") val imageUrl: String?,
+    @ColumnInfo(name = "price") val price: Int,
 ) {
 }

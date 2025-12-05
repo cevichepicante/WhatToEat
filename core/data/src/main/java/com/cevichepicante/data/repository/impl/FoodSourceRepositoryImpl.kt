@@ -2,6 +2,7 @@ package com.cevichepicante.data.repository.impl
 
 import android.content.Context
 import android.util.Log
+import com.cevichepicante.common.CommonComponents
 import com.cevichepicante.common.SharedPreferencesManager
 import com.cevichepicante.data.R
 import com.cevichepicante.data.model.Field
@@ -94,7 +95,8 @@ class FoodSourceRepositoryImpl @Inject constructor(
                     cookingLevel = it.getOrNull(fieldList.indexOf(Field.CookingLevel)),
                     cookingTime = it.getOrNull(fieldList.indexOf(Field.CookingTime)),
                     registeredTime = it.getOrNull(fieldList.indexOf(Field.RegisteredTime)),
-                    imageUrl = it.getOrNull(fieldList.indexOf(Field.FoodImageUrl))
+                    imageUrl = it.getOrNull(fieldList.indexOf(Field.FoodImageUrl)),
+                    price = getFoodPrice()
                 )
             }.also {
                 log("food list size: ${it.size}")
@@ -269,5 +271,12 @@ class FoodSourceRepositoryImpl @Inject constructor(
 
     private fun String.removeInvisibleChars(): String {
         return this.replace(Regex("[\\[{Z}\\p{C}]"), "")
+    }
+
+    private fun getFoodPrice(): Int {
+        return CommonComponents.foodPriceRange.random().let {
+            //  백원 단위 아래 삭제
+            it.minus(it.rem(100))
+        }
     }
 }

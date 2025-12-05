@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicTextField
@@ -21,8 +23,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +38,7 @@ import com.cevichepicante.model.FoodOrderReq
 import com.cevichepicante.ui.common.OrderReceiptDialog
 import com.cevichepicante.ui.util.ComponentUtil.asDp
 import com.cevichepicante.ui.order.FoodOrderUiState
+import com.cevichepicante.ui.util.ComponentUtil.bottomBorder
 import com.cevichepicante.ui.value.SlotFrame
 
 @Composable
@@ -46,13 +51,26 @@ fun OrderScreen(
     val orderFood by viewModel.orderFood.collectAsState()
     var orderInfo by remember {
         mutableStateOf(
-            FoodOrderReq(foodId, "", "", "", 27000)
+            FoodOrderReq(foodId, "", "", "", 1, 0)
         )
-
     }
     val orderUiState by viewModel.orderUiState.collectAsState()
     var showReceiptDialog by remember {
         mutableStateOf(false)
+    }
+    var foodAmount by remember(foodId) {
+        mutableIntStateOf(1)
+    }
+    val onClickChangeAmount by rememberUpdatedState<(Boolean) -> Unit> {
+        val newAmount = if(it) {
+            foodAmount.inc()
+        } else {
+            foodAmount.dec()
+        }.coerceAtLeast(0)
+
+        if(foodAmount != newAmount) {
+            foodAmount = newAmount
+        }
     }
 
     if(showReceiptDialog) {
@@ -121,14 +139,14 @@ fun OrderScreen(
 
         OrderFoodInfo(
             food = orderFood,
-            count = 2 //todo
+            amount = foodAmount,
+            onClickChangeAmount = onClickChangeAmount
         )
 
         Column(
             modifier = Modifier.padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Button(
                 onClick = {
                     viewModel.requestOrder(orderInfo)
@@ -179,31 +197,84 @@ private fun OrderClientInfo(
 @Composable
 private fun OrderFoodInfo(
     food: Food?,
-    count: Int,
+    amount: Int,
+    onClickChangeAmount: (Boolean) -> Unit
 ) {
     val foodPrice = 12000
+
     OrderFormBox {
-        Text(
-            text = food?.name.orEmpty(),
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = food?.name.orEmpty(),
+            )
+            Text(
+                text = foodPrice.toString(),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.End
+            )
+        }
+        FoodAmountController(
+            currentValue = amount,
+            onClickChangeAmount = onClickChangeAmount
         )
-        HorizontalDivider(
-            thickness = 1.dp
-        )
         Text(
-            text = foodPrice.toString(),
+            text = "총 ${foodPrice.times(amount)} 원",
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.End
-        )
-        Text(
-            text = "x $count",
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.End
-        )
-        Text(
-            text = "총 ${foodPrice.times(count)} 원"
         )
     }
 }
+
+@Composable
+private fun FoodAmountController(
+    currentValue: Int,
+    onClickChangeAmount: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End
+    ) {
+        FoodAmountControlButton(
+            content = "+",
+            onClick = {
+                onClickChangeAmount(true)
+            }
+        )
+        Text(
+            text = currentValue.toString(),
+            modifier = Modifier.padding(horizontal = 5.dp)
+        )
+        FoodAmountControlButton(
+            content = "-",
+            onClick = {
+                onClickChangeAmount(false)
+            }
+        )
+    }
+}
+
+@Composable
+private fun FoodAmountControlButton(
+    content: String,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(24.dp)
+            .clickable {
+                onClick()
+            }
+    ) {
+        Text(
+            text = content,
+            modifier = Modifier.fillMaxSize(),
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
 @Composable
 private fun OrderFormBox(
     content: @Composable ColumnScope.() -> Unit
@@ -216,7 +287,7 @@ private fun OrderFormBox(
                 width = 1.dp,
                 color = Color.Gray
             )
-            .padding(horizontal = 20.dp, vertical = 10.dp)
+            .padding(horizontal = 20.dp, vertical = 30.dp)
     ) {
         content()
     }
@@ -247,6 +318,10 @@ fun OrderTextField(
                     modifier = Modifier.fillMaxWidth()
                         .background(Color.White)
                         .padding(4.dp)
+                        .bottomBorder(
+                            color = Color.Gray,
+                            width = 1.dp
+                        )
                 ) {
                     inner()
                 }

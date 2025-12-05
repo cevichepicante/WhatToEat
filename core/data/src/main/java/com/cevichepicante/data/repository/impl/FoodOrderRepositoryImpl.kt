@@ -27,7 +27,7 @@ class FoodOrderRepositoryImpl @Inject constructor(
             foodId = param.foodId,
             address = param.address,
             clientName = param.clientName,
-            price = param.price,
+            price = param.foodPrice.times(param.foodAmount),
             leadTime = 900,
             delivererNumber = "010-1010-1010"
         )
@@ -38,6 +38,7 @@ class FoodOrderRepositoryImpl @Inject constructor(
                     history = OrderHistoryEntity(
                         id = orderData.orderId,
                         foodId = orderData.foodId,
+                        foodAmount = param.foodAmount,
                         clientName = orderData.clientName,
                         address = orderData.address,
                         price = orderData.price,

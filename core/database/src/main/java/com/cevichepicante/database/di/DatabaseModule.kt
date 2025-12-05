@@ -3,6 +3,7 @@ package com.cevichepicante.database.di
 import android.content.Context
 import androidx.room.Room
 import com.cevichepicante.database.WteDatabase
+import com.cevichepicante.database.WteDatabase.Companion.MIGRATION_1_TO_2
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,6 +22,8 @@ object DatabaseModule {
             context,
             WteDatabase::class.java,
             "wte-database"
+        ).addMigrations(
+            MIGRATION_1_TO_2
         ).build()
     }
 }
