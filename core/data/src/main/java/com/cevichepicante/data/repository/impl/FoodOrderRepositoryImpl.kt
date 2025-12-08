@@ -6,6 +6,7 @@ import com.cevichepicante.data.repository.FoodOrderRepository
 import com.cevichepicante.database.dao.FoodDao
 import com.cevichepicante.database.dao.OrderHistoryDao
 import com.cevichepicante.database.model.OrderHistoryEntity
+import com.cevichepicante.database.model.asFoodModel
 import com.cevichepicante.model.CommonResult
 import com.cevichepicante.model.Food
 import com.cevichepicante.model.FoodOrderReq
@@ -63,17 +64,6 @@ class FoodOrderRepositoryImpl @Inject constructor(
     }
 
     override suspend fun fetchOrderFoodInfo(foodId: String): Food? {
-        return foodDao.getFoodDetail(foodId)?.let {
-            Food(
-                id = it.id,
-                name = it.cookingName.orEmpty(),
-                price = it.price,
-                type = FoodType(
-                    materialCategory = it.cookingMaterialCategory.orEmpty(),
-                    kindCategory = it.cookingKindCategory.orEmpty(),
-                    occasionCategory = it.cookingOccasionCategory.orEmpty()
-                ),
-            )
-        }
+        return foodDao.getFoodDetail(foodId)?.asFoodModel()
     }
 }

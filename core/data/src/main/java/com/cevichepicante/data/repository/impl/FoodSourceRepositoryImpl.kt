@@ -10,6 +10,8 @@ import com.cevichepicante.data.repository.FoodSourceRepository
 import com.cevichepicante.data.util.CsvHelper
 import com.cevichepicante.database.dao.FoodDao
 import com.cevichepicante.database.model.FoodEntity
+import com.cevichepicante.database.model.asFoodModel
+import com.cevichepicante.database.model.asFoodSource
 import com.cevichepicante.model.Food
 import com.cevichepicante.model.FoodRecipe
 import com.cevichepicante.model.FoodSource
@@ -35,7 +37,7 @@ class FoodSourceRepositoryImpl @Inject constructor(
 
         val rawIdList = listOf(R.raw.recipe_data_220701, R.raw.recipe_data_241226)
         val readList = mutableListOf<List<String>>()
-        rawIdList.forEach { 
+        rawIdList.forEach {
             readList.addAll(csvHelper.readAll(context, it))
         }
 
@@ -66,7 +68,7 @@ class FoodSourceRepositoryImpl @Inject constructor(
                 return false
             }
         }
-        
+
         dao.insertFoodList(
             dataList.mapNotNull {
                 val id = it.getOrNull(fieldList.indexOf(Field.SerialNo))
@@ -107,45 +109,11 @@ class FoodSourceRepositoryImpl @Inject constructor(
     }
 
     override suspend fun fetchFoodSourceList(): List<FoodSource> {
-        return dao.getFoodList().map { 
-            FoodSource(
-                serialNo = it.id,
-                recipeTitle = it.recipeTitle,
-                cookingName = it.cookingName,
-                registererId = it.registererId,
-                registererName = it.registererName,
-                viewCount = it.viewCount,
-                recommendedCount = it.recommendedCount,
-                scrappedCount = it.scrappedCount,
-                cookingMethodCategory = it.cookingMethodCategory,
-                cookingOccasionCategory = it.cookingOccasionCategory,
-                cookingMaterialCategory = it.cookingMaterialCategory,
-                cookingKindCategory = it.cookingKindCategory,
-                cookingIntro = it.cookingIntro,
-                cookingMaterialContent = it.cookingMaterialContent,
-                cookingAmount = it.cookingAmount,
-                cookingLevel = it.cookingLevel,
-                cookingTime = it.cookingTime,
-                registeredTime = it.registeredTime,
-                imageUrl = it.imageUrl
-            )
-        }
+        return dao.getFoodList().map(FoodEntity::asFoodSource)
     }
 
     override suspend fun fetchFoodList(): List<Food> {
-        return dao.getFoodList().map {
-            val foodType = FoodType(
-                materialCategory = it.cookingMaterialCategory.orEmpty(),
-                kindCategory = it.cookingKindCategory.orEmpty(),
-                occasionCategory = it.cookingOccasionCategory.orEmpty()
-            )
-            Food(
-                id = it.id,
-                name = it.cookingName.orEmpty(),
-                price = it.price,
-                type = foodType,
-            )
-        }
+        return dao.getFoodList().map(FoodEntity::asFoodModel)
     }
 
     override suspend fun fetchFoodListFiltered(type: FoodType): List<Food> {
@@ -153,19 +121,7 @@ class FoodSourceRepositoryImpl @Inject constructor(
             material = type.materialCategory,
             kind = type.kindCategory,
             occasion = type.occasionCategory
-        ).map {
-            val foodType = FoodType(
-                materialCategory = it.cookingMaterialCategory.orEmpty(),
-                kindCategory = it.cookingKindCategory.orEmpty(),
-                occasionCategory = it.cookingOccasionCategory.orEmpty()
-            )
-            Food(
-                id = it.id,
-                name = it.cookingName.orEmpty(),
-                price = it.price,
-                type = foodType,
-            )
-        }
+        ).map(FoodEntity::asFoodModel)
     }
 
     override suspend fun fetchCookingKindList(): List<String> {
@@ -181,33 +137,7 @@ class FoodSourceRepositoryImpl @Inject constructor(
     }
 
     override suspend fun fetchFoodDetail(foodId: String): FoodSource? {
-        return dao.getFoodDetail(foodId).let {
-            if(it != null) {
-                FoodSource(
-                    serialNo = it.id,
-                    recipeTitle = it.recipeTitle,
-                    cookingName = it.cookingName,
-                    registererId = it.registererId,
-                    registererName = it.registererName,
-                    viewCount = it.viewCount,
-                    recommendedCount = it.recommendedCount,
-                    scrappedCount = it.scrappedCount,
-                    cookingMethodCategory = it.cookingMethodCategory,
-                    cookingOccasionCategory = it.cookingOccasionCategory,
-                    cookingMaterialCategory = it.cookingMaterialCategory,
-                    cookingKindCategory = it.cookingKindCategory,
-                    cookingIntro = it.cookingIntro,
-                    cookingMaterialContent = it.cookingMaterialContent,
-                    cookingAmount = it.cookingAmount,
-                    cookingLevel = it.cookingLevel,
-                    cookingTime = it.cookingTime,
-                    registeredTime = it.registeredTime,
-                    imageUrl = it.imageUrl
-                )
-            } else {
-                null
-            }
-        }
+        return dao.getFoodDetail(foodId)?.asFoodSource()
     }
 
     override suspend fun fetchFoodRecipe(foodId: String): FoodRecipe? {
