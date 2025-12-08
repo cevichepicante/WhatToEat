@@ -27,6 +27,9 @@ interface FoodDao {
         occasion: String
     ): List<FoodEntity>
 
+    @Query("select cookingName from FoodData where id = :id")
+    fun getFoodName(id: String): String?
+
     @Query("select * from FoodData where id = :id")
     fun getFoodDetail(id: String): FoodEntity?
 

@@ -142,6 +142,7 @@ class FoodSourceRepositoryImpl @Inject constructor(
             Food(
                 id = it.id,
                 name = it.cookingName.orEmpty(),
+                price = it.price,
                 type = foodType,
             )
         }
@@ -161,6 +162,7 @@ class FoodSourceRepositoryImpl @Inject constructor(
             Food(
                 id = it.id,
                 name = it.cookingName.orEmpty(),
+                price = it.price,
                 type = foodType,
             )
         }

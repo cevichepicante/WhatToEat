@@ -3,6 +3,7 @@ package com.cevichepicante.ui.order
 data class FoodOrderReceipt(
     val orderId: String,
     val foodName: String,
+    val foodAmount: Int,
     val clientName: String,
     val address: String,
     val delivererNumber: String,

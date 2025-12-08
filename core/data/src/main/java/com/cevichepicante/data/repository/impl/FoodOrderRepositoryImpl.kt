@@ -12,6 +12,7 @@ import com.cevichepicante.model.FoodOrderReq
 import com.cevichepicante.model.FoodOrderRes
 import com.cevichepicante.model.FoodType
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -22,11 +23,15 @@ class FoodOrderRepositoryImpl @Inject constructor(
 
     override suspend fun requestOrder(param: FoodOrderReq): CommonResult<FoodOrderRes> {
         // example
+        val foodName = withContext(Dispatchers.IO) {
+            foodDao.getFoodName(param.foodId).orEmpty()
+        }
         val orderData = FoodOrderRes(
             orderId = SystemClock.currentThreadTimeMillis().toString(),
-            foodId = param.foodId,
-            address = param.address,
-            clientName = param.clientName,
+            foodName = foodName,
+            foodAmount = param.foodAmount,
+            address = param.address.value,
+            clientName = param.clientName.value,
             price = param.foodPrice.times(param.foodAmount),
             leadTime = 900,
             delivererNumber = "010-1010-1010"
@@ -37,7 +42,7 @@ class FoodOrderRepositoryImpl @Inject constructor(
                 orderDao.insertOrderHistory(
                     history = OrderHistoryEntity(
                         id = orderData.orderId,
-                        foodId = orderData.foodId,
+                        foodId = param.foodId,
                         foodAmount = param.foodAmount,
                         clientName = orderData.clientName,
                         address = orderData.address,
@@ -62,6 +67,7 @@ class FoodOrderRepositoryImpl @Inject constructor(
             Food(
                 id = it.id,
                 name = it.cookingName.orEmpty(),
+                price = it.price,
                 type = FoodType(
                     materialCategory = it.cookingMaterialCategory.orEmpty(),
                     kindCategory = it.cookingKindCategory.orEmpty(),

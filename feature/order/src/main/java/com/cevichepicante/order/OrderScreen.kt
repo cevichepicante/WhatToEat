@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.cevichepicante.model.Food
 import com.cevichepicante.model.FoodOrderReq
 import com.cevichepicante.ui.common.OrderReceiptDialog
+import com.cevichepicante.ui.order.FoodOrderInputUiState
 import com.cevichepicante.ui.util.ComponentUtil.asDp
 import com.cevichepicante.ui.order.FoodOrderUiState
 import com.cevichepicante.ui.util.ComponentUtil.bottomBorder
@@ -45,45 +46,45 @@ import com.cevichepicante.ui.value.SlotFrame
 fun OrderScreen(
     foodId: String,
     viewModel: OrderViewModel,
-    onFinishOrder: () ->  Unit,
+    onFinishOrder: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val orderFood by viewModel.orderFood.collectAsState()
-    var orderInfo by remember {
-        mutableStateOf(
-            FoodOrderReq(foodId, "", "", "", 1, 0)
-        )
-    }
+    val inputValidState by viewModel.foodOrderInputUiState.collectAsState(FoodOrderInputUiState.None)
     val orderUiState by viewModel.orderUiState.collectAsState()
-    var showReceiptDialog by remember {
-        mutableStateOf(false)
-    }
-    var foodAmount by remember(foodId) {
-        mutableIntStateOf(1)
-    }
-    val onClickChangeAmount by rememberUpdatedState<(Boolean) -> Unit> {
-        val newAmount = if(it) {
+
+    var orderInfo by remember { mutableStateOf(FoodOrderReq(foodId = foodId)) }
+    var clientName by remember { mutableStateOf("") }
+    var clientAddress by remember { mutableStateOf("") }
+    var clientNumber by remember { mutableStateOf("") }
+    var foodAmount by remember(foodId) { mutableIntStateOf(1) }
+
+    var showReceiptDialog by remember { mutableStateOf(false) }
+    val onClickChangeAmount by rememberUpdatedState<(Boolean) -> Unit> { toIncrease ->
+        val newAmount = if (toIncrease) {
             foodAmount.inc()
         } else {
             foodAmount.dec()
         }.coerceAtLeast(0)
 
-        if(foodAmount != newAmount) {
+        if (foodAmount != newAmount) {
             foodAmount = newAmount
         }
     }
 
-    if(showReceiptDialog) {
+    if (showReceiptDialog) {
         val state = orderUiState as? FoodOrderUiState.Success
-        if(state != null) {
+        if (state != null) {
             OrderReceiptDialog(
                 show = true,
                 receipt = state.orderReceipt,
+                modifier = Modifier
+                    .padding(30.dp)
+                    .fillMaxSize(),
                 onDismissRequest = {
+                    onFinishOrder()
                     showReceiptDialog = false
-                    onFinishOrder() },
-                modifier = Modifier.padding(30.dp)
-                    .fillMaxSize()
+                }
             )
         }
     }
@@ -92,17 +93,50 @@ fun OrderScreen(
         viewModel.getOrderFoodInfo(foodId)
     }
 
+    LaunchedEffect(
+        keys = arrayOf<Any>(clientName, clientNumber, clientAddress, foodAmount)
+    ) {
+        orderInfo = orderInfo.copy(
+            clientName = orderInfo.clientName.updated(clientName),
+            clientNumber = orderInfo.clientNumber.updated(clientNumber),
+            address = orderInfo.address.updated(clientAddress),
+            foodAmount = foodAmount,
+            foodPrice = foodAmount.times(orderFood?.price?: 0)
+        )
+    }
+
     LaunchedEffect(orderUiState) {
-        when(val state = orderUiState) {
+        when (val state = orderUiState) {
             is FoodOrderUiState.Processing -> {
 
             }
+
             is FoodOrderUiState.Success -> {
                 showReceiptDialog = true
             }
+
             is FoodOrderUiState.Failure -> {
                 // TODO by error code
             }
+
+            else -> {}
+        }
+    }
+
+    LaunchedEffect(inputValidState) {
+        when (inputValidState) {
+            is FoodOrderInputUiState.Valid -> {
+                viewModel.requestOrder(orderInfo)
+            }
+
+            is FoodOrderInputUiState.MissingInput -> {
+
+            }
+
+            is FoodOrderInputUiState.Unmodified -> {
+
+            }
+
             else -> {}
         }
     }
@@ -110,8 +144,10 @@ fun OrderScreen(
     Column(
         modifier = modifier
     ) {
+        // 상태바
         Box(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .background(SlotFrame)
                 .height(55.dp)
                 .padding(horizontal = 20.dp)
@@ -121,22 +157,26 @@ fun OrderScreen(
                 text = "back",
                 color = Color.Gray,
                 fontSize = 14.asDp(),
-                modifier = Modifier.wrapContentSize()
+                modifier = Modifier
+                    .wrapContentSize()
                     .clickable {
                         // TODO: quit alert dialog ..
                         onFinishOrder()
                     }
             )
         }
+
+        // 주문 고객 정보
         OrderClientInfo(
-            name = orderInfo.clientName,
-            number = orderInfo.clientNumber,
-            address = orderInfo.address,
-            onNameValueChanged = { orderInfo = orderInfo.copy(clientName = it) },
-            onNumberValueChanged = { orderInfo = orderInfo.copy(clientNumber = it) },
-            onAddressValueChanged = { orderInfo = orderInfo.copy(address = it) }
+            name = clientName,
+            number = clientNumber,
+            address = clientAddress,
+            onNameValueChanged = { clientName = it },
+            onNumberValueChanged = { clientNumber = it },
+            onAddressValueChanged = { clientAddress = it }
         )
 
+        // 주문 음식 정보
         OrderFoodInfo(
             food = orderFood,
             amount = foodAmount,
@@ -149,7 +189,7 @@ fun OrderScreen(
         ) {
             Button(
                 onClick = {
-                    viewModel.requestOrder(orderInfo)
+                    viewModel.submitInfoValidation(orderInfo)
                 }
             ) {
                 Text(
@@ -200,7 +240,7 @@ private fun OrderFoodInfo(
     amount: Int,
     onClickChangeAmount: (Boolean) -> Unit
 ) {
-    val foodPrice = 12000
+    val price = food?.price?: 0
 
     OrderFormBox {
         Row(
@@ -210,7 +250,7 @@ private fun OrderFoodInfo(
                 text = food?.name.orEmpty(),
             )
             Text(
-                text = foodPrice.toString(),
+                text = price.toString(),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.End
             )
@@ -220,7 +260,7 @@ private fun OrderFoodInfo(
             onClickChangeAmount = onClickChangeAmount
         )
         Text(
-            text = "총 ${foodPrice.times(amount)} 원",
+            text = "총 ${price.times(amount)} 원",
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.End
         )
@@ -280,7 +320,8 @@ private fun OrderFormBox(
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .wrapContentHeight()
             .background(Color.White)
             .border(
@@ -315,7 +356,8 @@ fun OrderTextField(
             },
             decorationBox = { inner ->
                 Box(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .background(Color.White)
                         .padding(4.dp)
                         .bottomBorder(
