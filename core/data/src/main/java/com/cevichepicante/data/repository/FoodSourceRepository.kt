@@ -25,6 +25,4 @@ interface FoodSourceRepository {
     suspend fun fetchFoodDetail(foodId: String): FoodSource?
 
     suspend fun fetchFoodRecipe(foodId: String): FoodRecipe?
-
-    fun getMaterialList(materialString: String): List<Pair<String, List<String>>>
 }

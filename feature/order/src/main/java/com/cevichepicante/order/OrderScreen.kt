@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cevichepicante.model.Food
 import com.cevichepicante.model.FoodOrderReq
@@ -209,7 +210,9 @@ private fun OrderClientInfo(
     onNumberValueChanged: (String) -> Unit,
     onAddressValueChanged: (String) -> Unit,
 ) {
-    OrderFormBox {
+    OrderFormBox(
+        itemSpace = 8.dp
+    ) {
         OrderTextField(
             title = "이름",
             value = name,
@@ -310,16 +313,19 @@ private fun FoodAmountControlButton(
         Text(
             text = content,
             modifier = Modifier.fillMaxSize(),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            fontSize = 20.asDp()
         )
     }
 }
 
 @Composable
 private fun OrderFormBox(
+    itemSpace: Dp = 0.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
+        verticalArrangement = Arrangement.spacedBy(itemSpace),
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()

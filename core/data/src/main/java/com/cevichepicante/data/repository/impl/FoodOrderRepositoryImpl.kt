@@ -23,10 +23,10 @@ class FoodOrderRepositoryImpl @Inject constructor(
 ): FoodOrderRepository {
 
     override suspend fun requestOrder(param: FoodOrderReq): CommonResult<FoodOrderRes> {
-        // example
         val foodName = withContext(Dispatchers.IO) {
             foodDao.getFoodName(param.foodId).orEmpty()
         }
+        // example of server response data
         val orderData = FoodOrderRes(
             orderId = SystemClock.currentThreadTimeMillis().toString(),
             foodName = foodName,

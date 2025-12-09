@@ -6,6 +6,7 @@ import com.cevichepicante.common.CommonComponents
 import com.cevichepicante.common.SharedPreferencesManager
 import com.cevichepicante.data.R
 import com.cevichepicante.data.model.Field
+import com.cevichepicante.data.repository.BaseFoodSourceRepository
 import com.cevichepicante.data.repository.FoodSourceRepository
 import com.cevichepicante.data.util.CsvHelper
 import com.cevichepicante.database.dao.FoodDao
@@ -24,7 +25,7 @@ import javax.inject.Inject
 class FoodSourceRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val dao: FoodDao
-): FoodSourceRepository {
+): BaseFoodSourceRepository() {
 
     @Inject lateinit var csvHelper: CsvHelper
 
@@ -149,52 +150,13 @@ class FoodSourceRepositoryImpl @Inject constructor(
                     time = it.cookingTime.orEmpty(),
                     foodType = it.cookingKindCategory.orEmpty(),
                     level = it.cookingLevel.orEmpty(),
-                    materialList = getMaterialList(it.cookingMaterialContent.orEmpty()).map { pair ->
-                        RecipeMaterialData(
-                            category = pair.first,
-                            list = pair.second
-                        )
-                    }
+                    materialList = getMaterialList(it.cookingMaterialContent.orEmpty())
+                        .map { pair -> RecipeMaterialData(pair.first, pair.second) }
                 )
             } else {
                 null
             }
         }
-    }
-
-    override fun getMaterialList(materialString: String): List<Pair<String, List<String>>> {
-        if(materialString.isEmpty()) {
-            return listOf()
-        }
-
-        val result = mutableListOf<Pair<String, List<String>>>()
-        val categoryPattern = Pattern.compile("\\[(.*?)\\]")
-        val categoryMatcher = categoryPattern.matcher(materialString)
-        val categories = mutableListOf<Pair<Int, String>>()
-        while (categoryMatcher.find()) {
-            categories.add(
-                Pair(
-                    categoryMatcher.start(),
-                    categoryMatcher.group(1).orEmpty().trim()
-                )
-            )
-        }
-
-        categories.forEachIndexed { pos, pair ->
-            val start = pair.first.plus("[${pair.second}]".length)
-            val end = categories.getOrNull(pos.inc())?.first?: materialString.length
-            val contentString = materialString.substring(start, end).trim()
-            val contentList = mutableListOf<String>()
-            contentString.split("|").forEach {
-                val material = it.trim()
-                if(material.isNotEmpty()) {
-                    contentList.add(material)
-                }
-            }
-            result.add(Pair(pair.second, contentList))
-        }
-
-        return result
     }
 
     private fun log(msg: String) {
