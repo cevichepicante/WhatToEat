@@ -10,7 +10,6 @@ class HiltConventionPlugin: Plugin<Project> {
             apply(plugin = "com.google.devtools.ksp")
 
             dependencies {
-                // TODO need to user dash instead of dot?
                 "ksp"(libs.findLibrary("dagger.hilt.compiler").get())
             }
 

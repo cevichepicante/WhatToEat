@@ -2,7 +2,6 @@ package com.cevichepicante.data.util
 
 import android.content.Context
 import androidx.annotation.RawRes
-import com.cevichepicante.data.R
 import com.opencsv.CSVReader
 import java.io.BufferedReader
 import java.io.InputStreamReader
