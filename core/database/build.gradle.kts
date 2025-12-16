@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.wte.android.library)
     alias(libs.plugins.wte.dagger.hilt)
+    alias(libs.plugins.wte.android.room)
 }
 
 android {
@@ -28,9 +29,6 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.androidx.room)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)
 

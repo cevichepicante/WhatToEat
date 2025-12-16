@@ -21,6 +21,7 @@ dependencies {
     compileOnly(libs.android.gradleApiPlugin)
     compileOnly(libs.android.tools.common)
     compileOnly(libs.kotlin.gradlePlugin)
+    compileOnly(libs.room.gradlePlugin)
 }
 
 gradlePlugin {
@@ -52,6 +53,12 @@ gradlePlugin {
         register("androidLibraryCompose") {
             id = libs.plugins.wte.android.library.compose.get().pluginId
             implementationClass = "AndroidLibraryComposeConventionPlugin"
+        }
+    }
+    plugins {
+        register("room") {
+            id = libs.plugins.wte.android.room.get().pluginId
+            implementationClass = "AndroidRoomConventionPlugin"
         }
     }
 }

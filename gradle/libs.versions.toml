@@ -4,7 +4,7 @@ androidDesugarJdkLibs = "2.1.4"
 ksp = "2.1.10-1.0.31"
 androidGradlePlugin = "8.12.2"
 androidTools = "31.12.2"
-kotlin = "2.1.0"
+kotlin = "2.1.10"
 kotlinxCoroutines = "1.10.0"
 coreKtx = "1.10.0"
 junit = "4.13.2"
@@ -23,7 +23,7 @@ jetbrainsKotlinJvm = "2.0.0"
 jetbrainsKotlinSerialization = "1.9.0"
 navigation = "2.9.5"
 androidxHiltNavigationCompose = "1.2.0"
-room = "2.8.3"
+room = "2.7.2"
 uiUnitAndroid = "1.9.3"
 runtimeAndroid = "1.9.3"
 composeShadow = "1.0.1"
@@ -66,6 +66,7 @@ cevichepicante-compose-shadow = { group = "com.github.cevichepicante", name = "C
 android-gradleApiPlugin = { group = "com.android.tools.build", name = "gradle-api", version.ref = "androidGradlePlugin" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 android-tools-common = { group = "com.android.tools", name = "common", version.ref = "androidTools" }
+room-gradlePlugin = { group = "androidx.room", name = "room-gradle-plugin", version.ref = "room" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -76,6 +77,7 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref ="jetbrainsKotlinSerialization" }
+room = { id = "androidx.room", version.ref = "room" }
 
 # Defined by this project
 wte-android-application = { id = "wte.android.application" }
@@ -83,4 +85,4 @@ wte-android-library = { id = "wte.android.library" }
 wte-dagger-hilt = { id = "wte.dagger.hilt" }
 wte-android-application-compose = { id = "wte.android.application.compose" }
 wte-android-library-compose = { id = "wte.android.library.compose" }
-
+wte-android-room = { id = "wte.android.room" }

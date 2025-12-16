@@ -1,8 +1,9 @@
 plugins {
     alias(libs.plugins.wte.android.application)
-    alias(libs.plugins.wte.dagger.hilt)
     alias(libs.plugins.wte.android.application.compose)
+    alias(libs.plugins.wte.dagger.hilt)
     alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(libs.plugins.wte.android.room)
 }
 
 android {
@@ -42,9 +43,6 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.csv)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.room)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test)
