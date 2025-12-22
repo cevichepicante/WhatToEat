@@ -144,28 +144,6 @@ fun OrderScreen(
     Column(
         modifier = modifier
     ) {
-        // 상태바
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(SlotFrame)
-                .height(55.dp)
-                .padding(horizontal = 20.dp)
-                .wrapContentHeight(Alignment.CenterVertically)
-        ) {
-            Text(
-                text = "back",
-                color = Color.Gray,
-                fontSize = 14.asDp(),
-                modifier = Modifier
-                    .wrapContentSize()
-                    .clickable {
-                        // TODO: quit alert dialog ..
-                        onFinishOrder()
-                    }
-            )
-        }
-
         // 주문 고객 정보
         OrderClientInfo(
             name = clientName,

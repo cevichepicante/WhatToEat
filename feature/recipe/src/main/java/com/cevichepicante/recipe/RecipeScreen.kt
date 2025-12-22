@@ -44,24 +44,6 @@ fun RecipeScreen(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(50.dp)
     ) {
-        Box(
-            modifier = Modifier.fillMaxWidth()
-                .background(SlotFrame)
-                .height(55.dp)
-                .padding(horizontal = 20.dp)
-                .wrapContentHeight(Alignment.CenterVertically)
-        ) {
-            Text(
-                text = "back",
-                color = Color.Gray,
-                fontSize = 14.asDp(),
-                modifier = Modifier.wrapContentSize()
-                    .clickable {
-                        onClickClose()
-                    }
-            )
-        }
-
         recipe?.let {
             RecipeMainInfo(
                 name = it.name,
@@ -75,8 +57,6 @@ fun RecipeScreen(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-    }
-    recipe?.let {
     }
 }
 

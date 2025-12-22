@@ -25,11 +25,10 @@ fun CommonToolBar(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(55.dp)
             .padding(horizontal = 20.dp)
-            .then(modifier)
     ) {
         Row(
             modifier = Modifier.fillMaxHeight(),
