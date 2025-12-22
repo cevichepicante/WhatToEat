@@ -4,22 +4,25 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.compose.rememberNavController
 import com.cevichepicante.data.repository.FoodSourceRepository
-import com.cevichepicante.foodpicker.PickingFoodScreen
-import com.cevichepicante.foodpicker.PickingFoodViewModel
-import com.cevichepicante.recipe.RecipeScreen
-import com.cevichepicante.recipe.RecipeViewModel
+import com.cevichepicante.ui.common.CommonToolBar
+import com.cevichepicante.whattoeat.R
+import com.cevichepicante.whattoeat.main.data.TopLevelDestination
 import com.cevichepicante.whattoeat.main.navigation.WteNavHost
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -43,8 +46,28 @@ class MainActivity : ComponentActivity() {
             }
             if(inserting.await()) {
                 setContent {
+                    var toolBarTitle by remember {
+                        mutableIntStateOf(R.string.tool_bar_title_picking_food)
+                    }
+                    val navController = rememberNavController()
+                    val currentDestination = navController.currentBackStackEntryFlow
+                        .collectAsState(null).value?.destination
+
+                    LaunchedEffect(currentDestination) {
+                        TopLevelDestination.entries.find {
+                            currentDestination?.hasRoute(route = it.route) == true
+                        }?.let {
+                            toolBarTitle = it.titleTextId
+                        }
+                    }
+
                     Scaffold { innerPadding ->
+                        CommonToolBar(
+                            title = stringResource(toolBarTitle),
+                            onBack = {},
+                        )
                         WteNavHost(
+                            navController = navController,
                             modifier = Modifier.padding(innerPadding)
                         )
                     }

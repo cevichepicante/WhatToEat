@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,7 +35,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cevichepicante.model.Food
 import com.cevichepicante.model.FoodOrderReq
-import com.cevichepicante.ui.common.OrderReceiptDialog
+import com.cevichepicante.ui.order.OrderReceiptDialog
 import com.cevichepicante.ui.order.FoodOrderInputUiState
 import com.cevichepicante.ui.util.ComponentUtil.asDp
 import com.cevichepicante.ui.order.FoodOrderUiState
