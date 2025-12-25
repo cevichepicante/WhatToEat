@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">WhatToEat</string>
 
-    <string name="tool_bar_title_picking_food">What to eat</string>
+    <string name="tool_bar_title_picking_food">Pick!</string>
     <string name="tool_bar_title_recipe">레시피</string>
     <string name="tool_bar_title_order">주문</string>
 </resources>

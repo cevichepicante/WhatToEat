@@ -217,7 +217,7 @@ private fun FoodFilters(
             FoodFilterMenu(
                 category = "요리 상황",
                 content = occasionList,
-                selected = savedFilter.occasionCategory,
+                selected = filter.occasionCategory,
                 onItemClick = {
                     filter = filter.copy(occasionCategory = it)
                 }
