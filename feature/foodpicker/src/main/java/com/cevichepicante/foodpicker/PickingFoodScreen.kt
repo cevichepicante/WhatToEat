@@ -328,7 +328,13 @@ private fun FoodFilterMenu(
                         }
                     },
                     onClick = {
-                        onItemClick(item)
+                        onItemClick(
+                            if(pos == 0) {
+                                ""
+                            } else {
+                                item
+                            }
+                        )
                     }
                 )
             }

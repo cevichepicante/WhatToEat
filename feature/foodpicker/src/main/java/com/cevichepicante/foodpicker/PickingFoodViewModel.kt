@@ -71,7 +71,6 @@ class PickingFoodViewModel @Inject constructor(
 
     fun setFoodFilter(type: FoodType) {
         viewModelScope.launch(Dispatchers.IO) {
-            Log.d("JSY" ,"type: $type")
             _foodFilter.emit(type)
 
             repo.fetchFoodListFiltered(type).let {
